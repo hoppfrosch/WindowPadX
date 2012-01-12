@@ -1,0 +1,495 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>WindowPad v1.60</title>
+  <style type="text/css">
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif, "MS sans serif";
+	font-size: 85%;
+	border: 0;
+	background-color: #FFFFFF;
+}
+
+p {
+	margin-top: 0.7em;
+	margin-bottom: 0.7em;
+}
+
+/* The following series is for code/pre sections. */
+.CodeCom {color: #00A000;}
+.NoIndent {
+	margin-left: 0;
+	margin-right: 0;
+}
+pre {
+	font-family: Verdana, Arial, Helvetica, sans-serif, "MS sans serif";
+	font-size: 100%;
+    background-color: #F3F3FF;
+	margin: 0.7em 1.5em 0.7em 1.5em;
+	padding: 0.7em 0 0.7em 0.7em;
+}
+pre em, code em {
+    color: #00A000;
+	font-style: normal;
+}
+
+table {font-size: 100%;}
+tr {font-size: 100%;}
+td {font-size: 100%;}
+b {font-weight: bold;}
+ul {margin-top: 0.7em; margin-bottom: 0.7em;}
+ol {margin-top: 0.7em; margin-bottom: 0.7em;}
+li {margin-top: 0.2em; margin-bottom: 0.2em;}
+
+a        {text-decoration: none;}
+a:link   {text-decoration: none; color: #0000AA;}
+a:visited{text-decoration: none; color: #AA00AA;}
+a:active {text-decoration: none; color: #0000AA;}
+a:hover  {text-decoration: underline; color: #6666CC;}
+
+h1 {
+	font-size: 150%;
+	font-weight: bold;
+	font-family: Arial, Helvetica, sans-serif, "MS sans serif";
+	background-color: #405871;
+	color: #FFFFFF;
+	margin: 1.0em 0 0.5em 0;
+	padding: 0.1em 0 0.1em 0.2em;
+}
+
+h2 {
+  font-size: 155%;
+  font-weight: normal;
+  margin: 0;
+  padding: 0 0 0.5em 4px;
+  border-bottom-style: ridge;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 2px;
+}
+
+h3 {
+	font-size: 111%;
+	font-weight: bold;
+	background-color:#E6E6E6;
+	margin: 1.0em 0 0.5em 0;
+	padding: 0.1em 0 0.1em 0.2em;
+}
+
+h4 {
+	font-size: 111%;
+	font-weight: bold;
+}
+
+p.CommandSyntax {
+	background-color: #FFFFAA;
+	margin: 0 0 1.0em 0;
+	padding: 12px 0 12px 4px;
+}
+
+.ver {font-size: 80%; font-weight: bold}
+
+div.page:not(:target) {display: none}
+div.page:target {display: block}
+div.page {margin-top: 16pt}
+
+table {
+  width: 100%;
+  border-top: 2px solid #C0C0C0;
+  border-left: 2px solid #C0C0C0;
+}
+td {
+  border-right: 2px solid #C0C0C0;
+  border-bottom: 2px solid #C0C0C0;
+}
+td p {
+  margin-bottom: 5px;
+}
+
+div#contents {
+  width: auto;
+  float: left;
+  border-right: 1px solid #C0C0C0;
+  padding: 0 7px 0 7px;
+}
+div#contents ul { list-style-type: none; padding-left: 0; }
+div#viewport {
+  padding-left: 7px;
+  overflow: hidden;
+  height: 100%; /* workaround for overflow clipping in IE6 */
+}
+
+
+hr {border:none;border-top:1px solid #C0C0C0}
+
+  </style>
+  <script>
+function tabsetup() {
+    tabswitch(document.location.hash);
+    var a = document.getElementsByTagName('a');
+    for (i = 0; i < a.length; i++)
+        if (a[i].getAttribute('href',2).substr(0,1) == '#')
+            a[i].onclick = tabswitch;
+}
+function tabswitch(e) {
+  	id = typeof(e) == 'string' ? e : this.hash;
+  	for (i = 0, d = document.getElementsByTagName('div'); i < d.length; ++i)
+        if (d[i].className == 'page')
+            d[i].style.display = 'none';
+  	if (id)
+        document.getElementById(id.slice(1)).style.display = 'block';
+    // since back/forward won't work right, don't add to history.
+    event.returnValue = false;
+}
+if (window.attachEvent) { window.attachEvent('onload', tabsetup); }
+
+  </script>
+</head>
+<body>
+<h1 style="margin-top: 0em;">WindowPad<span class="ver">&nbsp;&nbsp;v1.60</span></h1>
+<div id="contents">
+  <ul>
+    <li><a href="#Configuration">How to Configure</a></li>
+    <li><a href="#Commandline">Command-line Usage</a></li>
+    <li><a href="#Version_History">Version History</a></li>
+  </ul>
+  <p><b>Commands</b>
+  <ul>
+    <li><a href="#GatherWindows">GatherWindows</a></li>
+    <li><a href="#FillVirtualScreen">FillVirtualScreen</a></li>
+    <li><a href="#Hotkeys">Hotkeys</a></li>
+    <li><a href="#MaximizeToggle">MaximizeToggle</a></li>
+    <li><a href="#Minimize">Minimize</a></li>
+    <li><a href="#Restore">Restore</a></li>
+    <li><a href="#Send">Send</a></li>
+    <li><a href="#Unminimize">Unminimize</a></li>
+    <li><a href="#WindowPadMove"><b>WindowPadMove</b></a></li>
+    <li><a href="#WindowScreenMove">WindowScreenMove</a></li>
+    <hr/>
+    <li><a href="#Adding_Commands">Adding Commands</a></li>
+    <li><a href="#Window_Titles">Window Titles</a></li>
+  </ul></p>
+</div>
+<div id="viewport">
+  <div class="page" id="Adding_Commands">
+    <h2>Adding Commands</h2>
+    <p>Additional commands for use in <i>WindowPad.ini</i> may be implemented by simply adding subroutines or functions to <i>WindowPad.ahk</i>.  For instance, a <b>Close</b> command could be implemented by adding either of the following:</p>
+<pre>Close: <em>; Subroutine version</em>
+    if wp_WinExist(Params)
+        WinClose
+    return
+    
+Close(winTitle) { <em>; Function version, requires v1.60+</em>
+    if wp_WinExist(winTitle)
+        WinClose
+}</pre>
+    <p>It would then be used like any other WindowPad command, by adding something like this to <i>WindowPad.ini</i>:</p>
+<pre>!4 = Close, A
+</pre>
+    <p>Note that AutoHotkey or Ahk2Exe is required to run or compile <i>WindowPad.ahk</i> after making changes.</p>
+  </div>
+  <div class="page" id="Commandline">
+    <h2>Command-line Usage</h2>
+    <p>As of v1.56, WindowPad supports a command-line mode.  Simply pass one or more commands on the command-line and WindowPad will execute them and then exit.  If a command's parameters contain spaces, the command and its arguments must be enclosed in quotation marks.  For example:
+<pre>WindowPad.exe GatherWindows,1 "WindowScreenMove, Next, My Window"
+</pre>
+  </div>
+  <div class="page" id="Configuration">
+    <h2>Configuration</h2>
+    <p>All configuration is currently done by editing WindowPad.ini.</p>
+    <h3>Hotkeys</h3>
+    <p>Hotkeys are defined in [Hotkeys] sections. Each section contains a list of hotkey=command bindings. The syntax for a binding is:</p>
+    <pre><i>Hotkey</i> = <i>Command</i>, <i>Params</i></pre>
+    <p><i>Hotkey</i> may be any valid AutoHotkey <a href="http://www.autohotkey.com/docs/Hotkeys.htm">hotkey</a>. <i>Command</i> must be a WindowPad command, defined in the script as a label.</p>
+    <p>Hotkeys defined in the [Hotkeys] section are initially active when WindowPad loads. Hotkey sets which use standard modifier keys like Ctrl (^) or Win (#) should be placed directly in this section.</p>
+    <pre>[Hotkeys]
+#Num
+</pre>
+    <p>Custom modifier keys may be implemented by placing "pad" keys (excluding the modifier key) in a [Hotkeys: <em>Name</em>] section, and a hotkey in the [Hotkeys] section to enable/disable it:</p>
+    <pre>[Hotkeys]
+<i>ModifierKey</i> = Hotkeys, <i>Name</i>
+...
+[Hotkeys: <i>Name</i>]
+<i>Key1</i> = <i>Command</i>, <i>Params</i>
+<i>Key2</i> = <i>Command</i>, <i>Params</i>
+...</pre>
+    <h3>Options</h3>
+    <p><b>TitleMatchMode</b>: Defines the default <a href="http://www.autohotkey.com/docs/commands/SetTitleMatchMode.htm">title matching mode</a> for the script. 
+    <p> If WindowPad is #included in another script, WindowPad_Init() must be called from the auto-execute section for this option to work. 
+    <p> <pre>[Options]
+TitleMatchMode=2
+</pre>
+    </p>
+    <h3>Exclude Windows</h3>
+    <p>WindowPad hotkeys are disabled for windows listed in this section. 
+    <p> <pre>[Exclude Windows]
+Window=Virtual PC
+Window=ahk_class TSSHELLWND
+<em>; TSSHELLWND is the window class of Remote Desktop.</em>
+</pre>
+    </p>
+    <h3>Gather Exclusions</h3>
+    <p>Windows may be excluded from <a href="#GatherWindows">"gathering"</a> either by title or by process. 
+    <p> In the following example, either section may be used to prevent <a href="#GatherWindows">GatherWindows</a> from affecting Windows Vista's side bar. <pre>[Gather: Exclude Windows]
+Window=ahk_class SideBar_AppBarWindow
+Window=ahk_class SideBar_HTMLHostWindow
+Window=ahk_class BasicWindow
+
+[Gather: Exclude Processes]
+Process=sidebar.exe
+</pre>
+    </p>
+  </div>
+  <div class="page" id="FillVirtualScreen">
+    <h2>FillVirtualScreen</h2>
+    <p>Expands a window to fill the entire virtual screen, which encompasses all screens in a multi-monitor setup.</p>
+    <p class="CommandSyntax">FillVirtualScreen, WinTitle</p>
+    <h3>Parameters</h3>
+    <table cellspacing="0" cellpadding="3">
+      <tr>
+        <td width="15%">WinTitle</td>
+        <td width="85%">See <a href="#Window_Titles">Window Titles</a>. </td>
+      </tr>
+    </table>
+  </div>
+  <div class="page" id="GatherWindows">
+    <h2>GatherWindows</h2>
+    <p>Gathers windows onto a single monitor.</p>
+    <p class="CommandSyntax">GatherWindows, WinTitle<br>
+GatherWindows, Monitor</p>
+    <h3>Parameters</h3>
+    <table cellspacing="0" cellpadding="3">
+      <tr>
+        <td width="15%">WinTitle</td>
+        <td width="85%">Gather windows onto the monitor which contains this window. See <a href="#Window_Titles">Window Titles</a>. </td>
+      </tr>
+      <tr>
+        <td>Monitor</td>
+        <td>A monitor number, where 1 is the first monitor. </td>
+      </tr>
+    </table>
+  </div>
+  <div class="page" id="Hotkeys">
+    <h2>Hotkeys</h2>
+    <p>Enables or disables a set of hotkeys.</p>
+    <p class="CommandSyntax">Hotkeys, Section, Options</p>
+    <h3>Parameters</h3>
+    <table cellspacing="0" cellpadding="3">
+      <tr>
+        <td width="15%">Section</td>
+        <td width="85%">The name of a <a href="#Configuration">hotkey set</a> defined in WindowPad.ini, excluding the Hotkeys: prefix. </td>
+      </tr>
+      <tr>
+        <td>Options</td>
+        <td>Any option or string of options compatible with AutoHotkey's Hotkey command. For instance, <b>On</b> or <b>Off</b>. 
+          <p>The word <b>Toggle</b> to toggle each hotkey in the set. 
+          <p>Specify <b>D%time%</b> to indicate that the hotkey that launched this command must be held for at least %time% seconds before the hotkey set is enabled. 
+          <p>If no options are specified, the hotkeys will be automatically disabled when the hotkey that launched this command is released. </td>
+      </tr>
+    </table></p>
+    <h3>Example</h3>
+    <p>In the following example, the hotkey set is enabled if CapsLock is held for 0.2 seconds, and automatically disabled when CapsLock is released: <pre>[Hotkeys]
+CapsLock = Hotkeys, Active Window, D0.2
+
+[Hotkeys: Active Window]
+z = WindowPadMove, -1, +1,  0.5, 0.5
+x = WindowPadMove,  0, +1,  1.0, 0.5
+...
+</pre>
+    </p>
+  </div>
+  <div class="page" id="MaximizeToggle">
+    <h2>MaximizeToggle</h2>
+    <p>Maximizes or restores a window.</p>
+    <p class="CommandSyntax">MaximizeToggle, WinTitle</p>
+    <h3>Parameters</h3>
+    <table cellspacing="0" cellpadding="3">
+      <tr>
+        <td width="15%">WinTitle</td>
+        <td width="85%">Indicates which window to maximize or restore. See <a href="#Window_Titles">Window Titles</a>. </td>
+      </tr>
+    </table>
+  </div>
+  <div class="page" id="Minimize">
+    <h2>Minimize</h2>
+    <p>Minimizes a window.</p>
+    <p class="CommandSyntax">Minimize, WinTitle</p>
+    <h3>Parameters</h3>
+    <table cellspacing="0" cellpadding="3">
+      <tr>
+        <td width="15%">WinTitle</td>
+        <td width="85%">Indicates which window to minimize. See <a href="#Window_Titles">Window Titles</a>. </td>
+      </tr>
+    </table>
+  </div>
+  <div class="page" id="Restore">
+    <h2>Restore</h2>
+    <p>Restores a window.</p>
+    <p class="CommandSyntax">Restore, WinTitle</p>
+    <h3>Parameters</h3>
+    <table cellspacing="0" cellpadding="3">
+      <tr>
+        <td width="15%">WinTitle</td>
+        <td width="85%">Indicates which window to restore. See <a href="#Window_Titles">Window Titles</a>. </td>
+      </tr>
+    </table>
+  </div>
+  <div class="page" id="Send">
+    <h2>Send</h2>
+    <p>Analogous to AutoHotkey's Send command.</p>
+    <p class="CommandSyntax">Send, Keys</p>
+    <h3>Remarks</h3>
+    <p>The comma is required.</p>
+  </div>
+  <div class="page" id="Unminimize">
+    <h2>Unminimize</h2>
+    <p>Restores the most recently minimized window.</p>
+    <p class="CommandSyntax">Unminimize</p>
+  </div>
+  <div class="page" id="Version_History">
+    <h2>Version History</h2>
+    <p>Version 1.60:
+    <ul>
+      <li>Functions with up to 5 parameters may now be used as commands in WindowPad.ini.</li>
+      <li>Added WPM as an alias for WindowPadMove.</li>
+      <li>Added FillVirtualScreen command.</li>
+      <li>Added config file for <a href="http://www.autohotkey.com/forum/topic22975.html">Compile_AHK II</a> (for recompiling with icons).</li>
+      <li>If <i>WinTitle</i> is _ (a single underscore), the last minimized window is used.</li>
+    </ul>
+    <p>Version 1.56:
+    <ul>
+      <li>Added command-line mode.</li>
+      <li>Tweaked tray menu.</li>
+      <li>Tweaked version info for WindowPad.exe.</li>
+      <li>Create WindowPad.ini automatically if it doesn't exist, rather than including WindowPad.ini in the distribution and risking overwrite of existing configuration.  Default contents are defined by WindowPad.Default.ini or embedded in WindowPad.exe.</li>
+    </ul>
+    <p>Version 1.55:
+    <ul>
+      <li>WindowPadMove now increases a window's width by 50% if a "centre" hotkey is used, the window is already in place, and there is only one monitor.</li>
+      <li>Added Win+Numpad configuration to default ini.</li>
+      <li>Added comments to the default ini for users who don't read the manual.</li>
+      <li>Updated documentation to clarify hotkey configuration and behaviour of WindowPadMove.</li>
+    </ul>
+    <p>Version 1.54:
+    <ul>
+      <li>WindowPadMove now halves a window's width and/or height if there is no other screen to move to.
+      <li>Changed default centre-pad hotkeys to use half the screen width rather than 100%.
+    </ul>
+Version 1.53:
+    <ul>
+      <li>Added exception for Google Chrome in IsResizable().
+    </ul>
+Version 1.52: 
+    <ul>
+      <li>Added [Options] section to WindowPad.ini, TitleMatchMode option. 
+      <li>Added [Exclude Windows] to WindowPad.ini, to make hotkeys context-sensitive. 
+    </ul>
+ Version 1.51: 
+    <ul>
+      <li>Introduced WindowPad_Init(IniPath). 
+      <li>Added D option to Hotkeys command. 
+      <li>Added commands: Minimize, Unminimize, Restore 
+    </ul>
+ Version 1.5 (beta): 
+    <ul>
+      <li>Changed SetWinDelay,-1 to SetWinDelay,0 to possibly improve reliability. 
+      <li>New system for customizing hotkeys (via WindowPad.ini) Allows any key to be a trigger. 
+      <li>GatherWindows: fixed restoring maximizing windows that are already on the destination monitor. 
+      <li>GatherWindows now centers windows that don't appear to be on-screen. 
+    </ul>
+ Version 1.13: 
+    <ul>
+      <li>Applied bobbo's hack for moving maximized windows. 
+    </ul>
+ Version 1.12: 
+    <ul>
+      <li>Added two methods to exclude windows from GatherWindows(): GatherExclude window group (exclude by title, class, etc.) ProcessGatherExcludeList (exclude by process name) 
+    </ul>
+ Version 1.11: 
+    <ul>
+      <li>Fixed compatiblity issue with screens that don't align at the top. 
+    </ul>
+ Version 1.1: 
+    <ul>
+      <li>"Gather windows" hotkeys (NumpadDiv and NumpadMult) 
+      <li>NumpadDot to move window to next monitor 
+      <li>Added more EasyKey combos (for symmetry) 
+      <li>Original functionality of EasyKey is retained (on key-release) 
+      <li>SetWinDelay, -1 to reduce lag when making multiple moves (quickly) 
+    </ul>
+ Version 1: 
+    <ul>
+      <li>intial release
+    </ul></p>
+  </div>
+  <div class="page" id="Window_Titles">
+    <h2>Window Titles</h2>
+    <p>WindowPad commands accept any of the following for the <i>WinTitle</i> parameter:
+    <ul>
+      <li>Empty or omitted: the active window.</li>
+      <li>Any standard AutoHotkey WinTitle. For instance, <b>Untitled - Notepad</b> and <b>ahk_class Notepad</b> are both acceptable, and <b>A</b> specifies the active window.</li>
+      <li><b>P</b>: the window below the active window in the z-order, which is usually but not always the previously active window.</li>
+      <li><b>M</b>: the window under the mouse cursor.</li>
+      <li>_ (underscore): the top-most minimized window, which is usually the most recently minimized.</li>
+    </ul></p>
+  </div>
+  <div class="page" id="WindowPadMove">
+    <h2>WindowPadMove</h2>
+    <p>Simultaneously moves and resizes a window, based on a "pad" concept.</p>
+    <p class="CommandSyntax">WindowPadMove, X, Y [, WidthFactor, HeightFactor, WinTitle ]</p>
+    <h3>Parameters</h3>
+    <table cellspacing="0" cellpadding="3">
+      <tr>
+        <td width="15%">X</td>
+        <td width="85%">-1 (left), 0 (center) or +1 (right) </td>
+      </tr>
+      <tr>
+        <td>Y</td>
+        <td>-1 (up), 0 (center) or +1 (down) </td>
+      </tr>
+      <tr>
+        <td>WidthFactor</td>
+        <td>A number between 0.0 and 1.0, where 0.5 is half of the screen's width. </td>
+      </tr>
+      <tr>
+        <td>HeightFactor</td>
+        <td>A number between 0.0 and 1.0, where 0.5 is half of the screen's height. </td>
+      </tr>
+      <tr>
+        <td>WinTitle</td>
+        <td>Indicates which window to move. See <a href="#Window_Titles">Window Titles</a>. </td>
+      </tr>
+    </table>
+    <h3>Remarks</h3>
+    <p>[ Brackets denote optional parameters. ]</p>
+    <p>WindowPadMove performs the first applicable action from the following list:</p>
+    <ul>
+      <li>If the window is not already occupying the indicated portion of the current monitor, move and resize.</li>
+      <li>If X or Y are non-zero and there is another monitor in the indicated direction, move to it. If both X and Y are non-zero, the move is strictly diagonal and may not be applicable to all multi-monitor setups.</li>
+      <li>If X and Y are zero and there are multiple monitors, move to the "next" monitor.</li>
+      <li>If X is non-zero, halve the width of the window, effectively "squashing" the window against the side of the screen.</li>
+      <li>If Y is non-zero, halve the height of the window.</li>
+      <li>Increase the width of the window by 50%. Usually X and Y are zero, the window is already in place, and there is only one monitor.</li>
+    </ul>
+    <p>If the window is minimized or maximized, it will be restored before it is moved.</p>
+  </div>
+  <div class="page" id="WindowScreenMove">
+    <h2>WindowScreenMove</h2>
+    <p>Moves a window between monitors (screens.)</p>
+    <p class="CommandSyntax">WindowScreenMove, Monitor, WinTitle</p>
+    <h3>Parameters</h3>
+    <table cellspacing="0" cellpadding="3">
+      <tr>
+        <td width="15%">Monitor</td>
+        <td width="85%"><b>Next</b>, <b>Previous</b> or a monitor number, where 1 is the first monitor. N, P and Prev are also acceptable. </td>
+      </tr>
+      <tr>
+        <td>WinTitle</td>
+        <td>Indicates which window to move. See <a href="#Window_Titles">Window Titles</a>. </td>
+      </tr>
+    </table>
+  </div>
+</div>
+</body>
+</html>
