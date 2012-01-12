@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <title>WindowPad v1.60</title>
+  <title>WindowPadX v0.1.0</title>
   <style type="text/css">
 body {
 	font-family: Verdana, Arial, Helvetica, sans-serif, "MS sans serif";
@@ -147,7 +147,7 @@ if (window.attachEvent) { window.attachEvent('onload', tabsetup); }
   </script>
 </head>
 <body>
-<h1 style="margin-top: 0em;">WindowPad<span class="ver">&nbsp;&nbsp;v1.60</span></h1>
+<h1 style="margin-top: 0em;">WindowPadX<span class="ver">&nbsp;&nbsp;v0.1.0</span></h1>
 <div id="contents">
   <ul>
     <li><a href="#Configuration">How to Configure</a></li>
@@ -174,7 +174,7 @@ if (window.attachEvent) { window.attachEvent('onload', tabsetup); }
 <div id="viewport">
   <div class="page" id="Adding_Commands">
     <h2>Adding Commands</h2>
-    <p>Additional commands for use in <i>WindowPad.ini</i> may be implemented by simply adding subroutines or functions to <i>WindowPad.ahk</i>.  For instance, a <b>Close</b> command could be implemented by adding either of the following:</p>
+    <p>Additional commands for use in <i>WindowPadX.ini</i> may be implemented by simply adding subroutines or functions to <i>WindowPadX.ahk</i>.  For instance, a <b>Close</b> command could be implemented by adding either of the following:</p>
 <pre>Close: <em>; Subroutine version</em>
     if wp_WinExist(Params)
         WinClose
@@ -184,25 +184,25 @@ Close(winTitle) { <em>; Function version, requires v1.60+</em>
     if wp_WinExist(winTitle)
         WinClose
 }</pre>
-    <p>It would then be used like any other WindowPad command, by adding something like this to <i>WindowPad.ini</i>:</p>
+    <p>It would then be used like any other WindowPadX command, by adding something like this to <i>WindowPadX.ini</i>:</p>
 <pre>!4 = Close, A
 </pre>
-    <p>Note that AutoHotkey or Ahk2Exe is required to run or compile <i>WindowPad.ahk</i> after making changes.</p>
+    <p>Note that AutoHotkey or Ahk2Exe is required to run or compile <i>WindowPadX.ahk</i> after making changes.</p>
   </div>
   <div class="page" id="Commandline">
     <h2>Command-line Usage</h2>
-    <p>As of v1.56, WindowPad supports a command-line mode.  Simply pass one or more commands on the command-line and WindowPad will execute them and then exit.  If a command's parameters contain spaces, the command and its arguments must be enclosed in quotation marks.  For example:
-<pre>WindowPad.exe GatherWindows,1 "WindowScreenMove, Next, My Window"
+    <p>As of v1.56, WindowPadX supports a command-line mode.  Simply pass one or more commands on the command-line and WindowPadX will execute them and then exit.  If a command's parameters contain spaces, the command and its arguments must be enclosed in quotation marks.  For example:
+<pre>WindowPadX.exe GatherWindows,1 "WindowScreenMove, Next, My Window"
 </pre>
   </div>
   <div class="page" id="Configuration">
     <h2>Configuration</h2>
-    <p>All configuration is currently done by editing WindowPad.ini.</p>
+    <p>All configuration is currently done by editing WindowPadX.ini.</p>
     <h3>Hotkeys</h3>
     <p>Hotkeys are defined in [Hotkeys] sections. Each section contains a list of hotkey=command bindings. The syntax for a binding is:</p>
     <pre><i>Hotkey</i> = <i>Command</i>, <i>Params</i></pre>
-    <p><i>Hotkey</i> may be any valid AutoHotkey <a href="http://www.autohotkey.com/docs/Hotkeys.htm">hotkey</a>. <i>Command</i> must be a WindowPad command, defined in the script as a label.</p>
-    <p>Hotkeys defined in the [Hotkeys] section are initially active when WindowPad loads. Hotkey sets which use standard modifier keys like Ctrl (^) or Win (#) should be placed directly in this section.</p>
+    <p><i>Hotkey</i> may be any valid AutoHotkey <a href="http://www.autohotkey.com/docs/Hotkeys.htm">hotkey</a>. <i>Command</i> must be a WindowPadX command, defined in the script as a label.</p>
+    <p>Hotkeys defined in the [Hotkeys] section are initially active when WindowPadX loads. Hotkey sets which use standard modifier keys like Ctrl (^) or Win (#) should be placed directly in this section.</p>
     <pre>[Hotkeys]
 #Num
 </pre>
@@ -216,13 +216,13 @@ Close(winTitle) { <em>; Function version, requires v1.60+</em>
 ...</pre>
     <h3>Options</h3>
     <p><b>TitleMatchMode</b>: Defines the default <a href="http://www.autohotkey.com/docs/commands/SetTitleMatchMode.htm">title matching mode</a> for the script. 
-    <p> If WindowPad is #included in another script, WindowPad_Init() must be called from the auto-execute section for this option to work. 
+    <p> If WindowPadX is #included in another script, WindowPad_Init() must be called from the auto-execute section for this option to work. 
     <p> <pre>[Options]
 TitleMatchMode=2
 </pre>
     </p>
     <h3>Exclude Windows</h3>
-    <p>WindowPad hotkeys are disabled for windows listed in this section. 
+    <p>WindowPadX hotkeys are disabled for windows listed in this section. 
     <p> <pre>[Exclude Windows]
 Window=Virtual PC
 Window=ahk_class TSSHELLWND
@@ -278,7 +278,7 @@ GatherWindows, Monitor</p>
     <table cellspacing="0" cellpadding="3">
       <tr>
         <td width="15%">Section</td>
-        <td width="85%">The name of a <a href="#Configuration">hotkey set</a> defined in WindowPad.ini, excluding the Hotkeys: prefix. </td>
+        <td width="85%">The name of a <a href="#Configuration">hotkey set</a> defined in WindowPadX.ini, excluding the Hotkeys: prefix. </td>
       </tr>
       <tr>
         <td>Options</td>
@@ -349,83 +349,15 @@ x = WindowPadMove,  0, +1,  1.0, 0.5
   </div>
   <div class="page" id="Version_History">
     <h2>Version History</h2>
-    <p>Version 1.60:
-    <ul>
-      <li>Functions with up to 5 parameters may now be used as commands in WindowPad.ini.</li>
-      <li>Added WPM as an alias for WindowPadMove.</li>
-      <li>Added FillVirtualScreen command.</li>
-      <li>Added config file for <a href="http://www.autohotkey.com/forum/topic22975.html">Compile_AHK II</a> (for recompiling with icons).</li>
-      <li>If <i>WinTitle</i> is _ (a single underscore), the last minimized window is used.</li>
-    </ul>
-    <p>Version 1.56:
-    <ul>
-      <li>Added command-line mode.</li>
-      <li>Tweaked tray menu.</li>
-      <li>Tweaked version info for WindowPad.exe.</li>
-      <li>Create WindowPad.ini automatically if it doesn't exist, rather than including WindowPad.ini in the distribution and risking overwrite of existing configuration.  Default contents are defined by WindowPad.Default.ini or embedded in WindowPad.exe.</li>
-    </ul>
-    <p>Version 1.55:
-    <ul>
-      <li>WindowPadMove now increases a window's width by 50% if a "centre" hotkey is used, the window is already in place, and there is only one monitor.</li>
-      <li>Added Win+Numpad configuration to default ini.</li>
-      <li>Added comments to the default ini for users who don't read the manual.</li>
-      <li>Updated documentation to clarify hotkey configuration and behaviour of WindowPadMove.</li>
-    </ul>
-    <p>Version 1.54:
-    <ul>
-      <li>WindowPadMove now halves a window's width and/or height if there is no other screen to move to.
-      <li>Changed default centre-pad hotkeys to use half the screen width rather than 100%.
-    </ul>
-Version 1.53:
-    <ul>
-      <li>Added exception for Google Chrome in IsResizable().
-    </ul>
-Version 1.52: 
-    <ul>
-      <li>Added [Options] section to WindowPad.ini, TitleMatchMode option. 
-      <li>Added [Exclude Windows] to WindowPad.ini, to make hotkeys context-sensitive. 
-    </ul>
- Version 1.51: 
-    <ul>
-      <li>Introduced WindowPad_Init(IniPath). 
-      <li>Added D option to Hotkeys command. 
-      <li>Added commands: Minimize, Unminimize, Restore 
-    </ul>
- Version 1.5 (beta): 
-    <ul>
-      <li>Changed SetWinDelay,-1 to SetWinDelay,0 to possibly improve reliability. 
-      <li>New system for customizing hotkeys (via WindowPad.ini) Allows any key to be a trigger. 
-      <li>GatherWindows: fixed restoring maximizing windows that are already on the destination monitor. 
-      <li>GatherWindows now centers windows that don't appear to be on-screen. 
-    </ul>
- Version 1.13: 
-    <ul>
-      <li>Applied bobbo's hack for moving maximized windows. 
-    </ul>
- Version 1.12: 
-    <ul>
-      <li>Added two methods to exclude windows from GatherWindows(): GatherExclude window group (exclude by title, class, etc.) ProcessGatherExcludeList (exclude by process name) 
-    </ul>
- Version 1.11: 
-    <ul>
-      <li>Fixed compatiblity issue with screens that don't align at the top. 
-    </ul>
- Version 1.1: 
-    <ul>
-      <li>"Gather windows" hotkeys (NumpadDiv and NumpadMult) 
-      <li>NumpadDot to move window to next monitor 
-      <li>Added more EasyKey combos (for symmetry) 
-      <li>Original functionality of EasyKey is retained (on key-release) 
-      <li>SetWinDelay, -1 to reduce lag when making multiple moves (quickly) 
-    </ul>
- Version 1: 
-    <ul>
-      <li>intial release
-    </ul></p>
+    <p>Version 0.1.0:
+        <ul>
+            <li>intial release - Original based on <a href="http://www.autohotkey.com/forum/viewtopic.php?t=21703">WindowPad v1.60</a> by <a href="http://www.autohotkey.com/forum/profile.php?mode=viewprofile&u=3754">Lexikos</a>
+        </ul>
+    </p>
   </div>
   <div class="page" id="Window_Titles">
     <h2>Window Titles</h2>
-    <p>WindowPad commands accept any of the following for the <i>WinTitle</i> parameter:
+    <p>WindowPadX commands accept any of the following for the <i>WinTitle</i> parameter:
     <ul>
       <li>Empty or omitted: the active window.</li>
       <li>Any standard AutoHotkey WinTitle. For instance, <b>Untitled - Notepad</b> and <b>ahk_class Notepad</b> are both acceptable, and <b>A</b> specifies the active window.</li>
