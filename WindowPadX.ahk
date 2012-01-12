@@ -1,10 +1,31 @@
-; WindowPadX v0.1.0
-;   http://www.autohotkey.com/forum/topic21703.html
-;   Requires AutoHotkey v1.0.48 or later.
+; WindowPadX v1.0.0
+;   derived from http://www.autohotkey.com/forum/topic21703.html
+;   Requires AutoHotkey v1.1.0 or later.
+
+/*
+--------------------------------------------------------------------------------------
+Ideensammlung:
+* Roll/Unroll Action: http://www.autohotkey.com/forum/viewtopic.php?p=9859#9859
+* "AlwaysOnTop": Anzeige Win-Caption (Titelzeile des Windows)
+* Transparenz für Fenster
+* Overlay-Icon in Taskbar, um anzuzeigen auf welchem Screen sich das Fenster befindet ... (Funktion aus ITaskBar von maul.esel)
+  Hinweise:
+  * http://www.autohotkey.com/forum/viewtopic.php?t=74314
+  * http://www.autohotkey.com/forum/viewtopic.php?t=70978
+  
+* Wiederherstellen des "Normalzustandes von Fenstern" bei Programmende (AlwaysOnTop, Rollup, OverlayIcons entfernen ...) 
+  Realisierungsidee:
+  * Speichern der Aktion in den WindowsProperties() -> wp_SetProp(...)
+  * Bei Programmende über alle Fenster iterieren und Aktionen rückgängig machen -< wp_Restore()
+
+-------------------------------------------------------------------------------------- 
+*/
+
+#include %A_ScriptDir%/WPXA.ahk
 
 #SingleInstance force
 
-applicationname=WindowPadX
+Version := "1.0.0"
 
 if 0 > 0
 {
@@ -21,6 +42,8 @@ if 0 > 0
         wp_ExecLine(%A_Index%)
     ExitApp
 }
+
+OnExit, TrayExit
 
 WindowPadXInit:
     ; If this script is #included in another script, this section may not be
@@ -172,7 +195,12 @@ TrayEdit:
     Edit
   return
 TrayEditConfig:
-    Run, %A_ScriptDir%\..\..\SciTE_beta5\SciTE.exe %A_ScriptDir%\WindowPadX.ini
+    RegRead, Editor, HKCR, AutoHotkeyScript\Shell\Edit\Command
+    StringReplace, Editor, Editor, "`%1",
+    Trim(Editor)
+    if (Editor = )
+        Editor = notepad
+    Run, %Editor% "%A_ScriptDir%\WindowPadX.ini"
     return
 TraySuspend:
     WM_COMMAND(65305,0)
@@ -180,376 +208,12 @@ TraySuspend:
     Menu, Tray, % A_IsSuspended ? "Check" : "Uncheck", &Suspend
   return
 TrayExit:
-  ExitApp
 
 
-;
-; WindowPadXMove: move and resize window based on a "pad" concept.
-;
-WPM(x, y, w, h, T) {
-    WindowPadXMove(x, y, w, h, T)
-}
-WindowPadXMove(sideX, sideY, widthFactor, heightFactor, winTitle)
-{
-    if ! hwnd := wp_WinExist(winTitle)
-        return
-
-    if sideX =
-        sideX = R
-    if sideY =
-        sideY = R
-    if widthFactor is not number
-        widthFactor := sideX ? 0.5 : 1.0
-    if heightFactor is not number
-        heightFactor := sideY ? 0.5 : 1.0
-    
-    WinGetPos, x, y, w, h
-    
-    if wp_IsWhereWePutIt(hwnd, x, y, w, h)
-    {   ; Check if user wants to restore.
-        if SubStr(sideX,1,1) = "R"
-        {   ; Restore on X-axis.
-            restore_x := wp_GetProp(hwnd,"wpRestoreX")
-            restore_w := wp_GetProp(hwnd,"wpRestoreW")
-            StringTrimLeft, sideX, sideX, 1
-        }
-        if SubStr(sideY,1,1) = "R"
-        {   ; Restore on Y-axis.
-            restore_y := wp_GetProp(hwnd,"wpRestoreY")
-            restore_h := wp_GetProp(hwnd,"wpRestoreH")
-            StringTrimLeft, sideY, sideY, 1
-        }
-        if (restore_x != "" || restore_y != "")
-        {   ; If already at the "restored" size and position, do the normal thing instead.
-            if ((restore_x = x || restore_x = "") && (restore_y = y || restore_y = "")
-                && (restore_w = w || restore_w = "") && (restore_h = h || restore_h = ""))
-            {
-                restore_x =
-                restore_y =
-                restore_w =
-                restore_h =
-            }
-        }
-    }
-    else
-    {   ; WindowPadX didn't put that window here, so save this position before moving.
-        wp_SetRestorePos(hwnd, x, y, w, h)
-        if SubStr(sideX,1,1) = "R"
-            StringTrimLeft, sideX, sideX, 1
-        if SubStr(sideY,1,1) = "R"
-            StringTrimLeft, sideY, sideY, 1
-    }
-    
-    ; If no direction specified, restore or only switch monitors.
-    if (sideX+0 = "" && restore_x = "")
-        restore_x := x, restore_w := w
-    if (sideY+0 = "" && restore_y = "")
-        restore_y := y, restore_h := h
-    
-    ; Determine which monitor contains the center of the window.
-    m := wp_GetMonitorAt(x+w/2, y+h/2)
-    
-    ; Get work area of active monitor.
-    gosub wp_CalcMonitorStats
-    ; Calculate possible new position for window.
-    gosub wp_CalcNewSizeAndPosition
-
-    ; If the window is already there,
-    if (newx "," newy "," neww "," newh) = (x "," y "," w "," h)
-    {   ; ..move to the next monitor along instead.
-    
-        if (sideX or sideY)
-        {   ; Move in the direction of sideX or sideY.
-            SysGet, monB, Monitor, %m% ; get bounds of entire monitor (vs. work area)
-            x := (sideX=0) ? (x+w/2) : (sideX>0 ? monBRight : monBLeft) + sideX
-            y := (sideY=0) ? (y+h/2) : (sideY>0 ? monBBottom : monBTop) + sideY
-            newm := wp_GetMonitorAt(x, y, m)
-        }
-        else
-        {   ; Move to center (Numpad5)
-            newm := m+1
-            SysGet, mon, MonitorCount
-            if (newm > mon)
-                newm := 1
-        }
-    
-        if (newm != m)
-        {   m := newm
-            ; Move to opposite side of monitor (left of a monitor is another monitor's right edge)
-            sideX *= -1
-            sideY *= -1
-            ; Get new monitor's work area.
-            gosub wp_CalcMonitorStats
-        }
-        else
-        {   ; No monitor to move to, alternate size of window instead.
-            if sideX
-                widthFactor /= 2
-            else if sideY
-                heightFactor /= 2
-            else
-                widthFactor *= 1.5
-        }
-        
-        ; Calculate new position for window.
-        gosub wp_CalcNewSizeAndPosition
-    }
-
-    ; Restore before resizing...
-    WinGet, state, MinMax
-    if state
-        WinRestore
-
-    WinDelay := A_WinDelay
-    SetWinDelay, 0
-    
-    if (is_resizable := wp_IsResizable())
-    {
-        ; Move and resize.
-        WinMove,,, newx, newy, neww, newh
-        
-        ; Since some windows might be resizable but have restrictions,
-        ; check that the window has sized correctly.  If not, adjust.
-        WinGetPos, newx, newy, w, h
-    }
-    if (!is_resizable || (neww != w || newh != h))
-    {
-        ; If the window is smaller on a given axis, center it within
-        ; the space.  Otherwise align to the appropriate side.
-        newx := Round(newx + (neww-w)/2 * (1 + (w>neww)*sideX))
-        newy := Round(newy + (newh-h)/2 * (1 + (h>newh)*sideY))
-        ; Move but (usually) don't resize.
-        WinMove,,, newx, newy, w, h
-    }
-    
-    ; Explorer uses WM_EXITSIZEMOVE to detect when a user finishes moving a window
-    ; in order to save the position for next time. May also be used by other apps.
-    PostMessage, 0x232
-    
-    SetWinDelay, WinDelay
-    
-    wp_RememberPos(hwnd)
-    return
-
-wp_CalcNewSizeAndPosition:
-    ; Calculate desired size.
-    neww := restore_w != "" ? restore_w : Round(monWidth * widthFactor)
-    newh := restore_h != "" ? restore_h : Round(monHeight * heightFactor)
-    ; Fall through to below:
-wp_CalcNewPosition:
-    ; Calculate desired position.
-    newx := restore_x != "" ? restore_x : Round(monLeft + (sideX+1) * (monWidth  - neww)/2) 
-    newy := restore_y != "" ? restore_y : Round(monTop  + (sideY+1) * (monHeight - newh)/2)
-    return
-
-wp_CalcMonitorStats:
-    ; Get work area (excludes taskbar-reserved space.)
-    SysGet, mon, MonitorWorkArea, %m%
-    monWidth  := monRight - monLeft
-    monHeight := monBottom - monTop
-    return
-}
+    wp_Restore()
+    ExitApp
 
 
-;
-; WindowScreenMove: Move window between screens, preserving relative position and size.
-;
-WindowScreenMove(md, winTitle)
-{
-    if !wp_WinExist(winTitle)
-        return
-    
-    SetWinDelay, 0
-
-    WinGet, state, MinMax
-    if state
-        WinRestore
-
-    WinGetPos, x, y, w, h
-    
-    ; Determine which monitor contains the center of the window.
-    ms := wp_GetMonitorAt(x+w/2, y+h/2)
-    
-    SysGet, mc, MonitorCount
-
-    ; Determine which monitor to move to.
-    if md in ,N,Next
-    {
-        md := ms+1
-        if (md > mc)
-            md := 1
-    }
-    else if md in P,Prev,Previous
-    {
-        md := ms-1
-        if (md < 1)
-            md := mc
-    }
-    
-    if (md=ms or (md+0)="" or md<1 or md>mc)
-        return
-    
-    ; Get source and destination work areas (excludes taskbar-reserved space.)
-    SysGet, ms, MonitorWorkArea, %ms%
-    SysGet, md, MonitorWorkArea, %md%
-    msw := msRight - msLeft, msh := msBottom - msTop
-    mdw := mdRight - mdLeft, mdh := mdBottom - mdTop
-    
-    ; Calculate new size.
-    if (wp_IsResizable()) {
-        w := Round(w*(mdw/msw))
-        h := Round(h*(mdh/msh))
-    }
-    
-    ; Move window, using resolution difference to scale co-ordinates.
-    WinMove,,, mdLeft + (x-msLeft)*(mdw/msw), mdTop + (y-msTop)*(mdh/msh), w, h
-
-    if state = 1
-        WinMaximize
-}
-
-
-;
-; MaximizeToggle: Maximize or restore the window.
-;
-MaximizeToggle(winTitle)
-{
-    if wp_WinExist(winTitle)
-    {
-        WinGet, state, MinMax
-        if state
-            WinRestore
-        else
-            WinMaximize
-    }
-}
-
-
-;
-; GatherWindows: "Gather" windows on a specific screen.
-;
-GatherWindows(md)
-{
-    global ProcessGatherExcludeList
-    
-    SetWinDelay, 0
-    
-    ; List all visible windows.
-    WinGet, win, List
-    
-    ; Copy bounds of all monitors to an array.
-    SysGet, mc, MonitorCount
-    Loop, %mc%
-        SysGet, mon%A_Index%, MonitorWorkArea, %A_Index%
-    
-    if md = M
-    {   ; Special exception for 'M', since the desktop window
-        ; spreads across all screens.
-        CoordMode, Mouse, Screen
-        MouseGetPos, x, y
-        md := wp_GetMonitorAt(x, y, 0)
-    }
-    else if md is not integer
-    {   ; Support A, P and WinTitle.
-        ; (Gather at screen containing specified window.)
-        wp_WinExist(md)
-        WinGetPos, x, y, w, h
-        md := wp_GetMonitorAt(x+w/2, y+h/2, 0)
-    }
-    if (md<1 or md>mc)
-        return
-    
-    ; Destination monitor
-    mdx := mon%md%Left
-    mdy := mon%md%Top
-    mdw := mon%md%Right - mdx
-    mdh := mon%md%Bottom - mdy
-    
-    Loop, %win%
-    {
-        ; If this window matches the GatherExclude group, don't touch it.
-        if (WinExist("ahk_group GatherExclude ahk_id " . win%A_Index%))
-            continue
-        
-        ; Set Last Found Window.
-        if (!WinExist("ahk_id " . win%A_Index%))
-            continue
-
-        WinGet, procname, ProcessName
-        ; Check process (program) exclusion list.
-        if procname in %ProcessGatherExcludeList%
-            continue
-        
-        WinGetPos, x, y, w, h
-        
-        ; Determine which monitor this window is on.
-        xc := x+w/2, yc := y+h/2
-        ms := 0
-        Loop, %mc%
-            if (xc >= mon%A_Index%Left && xc <= mon%A_Index%Right
-                && yc >= mon%A_Index%Top && yc <= mon%A_Index%Bottom)
-            {
-                ms := A_Index
-                break
-            }
-        ; If already on destination monitor, skip this window.
-        if (ms = md)
-            continue
-        
-        WinGet, state, MinMax
-        if (state = 1) {
-            WinRestore
-            WinGetPos, x, y, w, h
-        }
-    
-        if ms
-        {
-            ; Source monitor
-            msx := mon%ms%Left
-            msy := mon%ms%Top
-            msw := mon%ms%Right - msx
-            msh := mon%ms%Bottom - msy
-            
-            ; If the window is resizable, scale it by the monitors' resolution difference.
-            if (wp_IsResizable()) {
-                w *= (mdw/msw)
-                h *= (mdh/msh)
-            }
-        
-            ; Move window, using resolution difference to scale co-ordinates.
-            WinMove,,, mdx + (x-msx)*(mdw/msw), mdy + (y-msy)*(mdh/msh), w, h
-        }
-        else
-        {   ; Window not on any monitor, move it to center.
-            WinMove,,, mdx + (mdw-w)/2, mdy + (mdh-h)/2
-        }
-
-        if state = 1
-            WinMaximize
-    }
-}
-
-
-;
-; FillVirtualScreen: Expand the window to fill the virtual screen (all monitors).
-;
-FillVirtualScreen(winTitle)
-{
-    if hwnd := wp_WinExist(winTitle)
-    {
-        WinGetPos, x, y, w, h
-        if !wp_IsWhereWePutIt(hwnd, x, y, w, h)
-            wp_SetRestorePos(hwnd, x, y, w, h)
-        ; Get position and size of virtual screen.
-        SysGet, x, 76
-        SysGet, y, 77
-        SysGet, w, 78
-        SysGet, h, 79
-        ; Resize window to fill all...
-        WinMove,,, x, y, w, h
-        wp_RememberPos(hwnd)
-    }
-}
 
 ;
 ; Hotkeys: Activate hotkeys defined in INI section [Hotkeys: %section%].
@@ -656,45 +320,10 @@ Restore:
     if wp_WinExist(Params)
         WinRestore
     return
-
-
+    
 ;
 ; Internal Functions
 ;
-
-wp_IsWhereWePutIt(hwnd, x, y, w, h)
-{
-    if wp_GetProp(hwnd,"wpHasRestorePos")
-    {   ; Window has restore info. Check if it is where we last put it.
-        last_x := wp_GetProp(hwnd,"wpLastX")
-        last_y := wp_GetProp(hwnd,"wpLastY")
-        last_w := wp_GetProp(hwnd,"wpLastW")
-        last_h := wp_GetProp(hwnd,"wpLastH")
-        return (last_x = x && last_y = y && last_w = w && last_h = h)
-    }
-    return false
-}
-
-wp_RememberPos(hwnd)
-{
-    WinGetPos, x, y, w, h, ahk_id %hwnd%
-    ; Remember where we put it, to detect if the user moves it.
-    wp_SetProp(hwnd,"wpLastX",x)
-    wp_SetProp(hwnd,"wpLastY",y)
-    wp_SetProp(hwnd,"wpLastW",w)
-    wp_SetProp(hwnd,"wpLastH",h)
-}
-
-wp_SetRestorePos(hwnd, x, y, w, h)
-{
-    ; Next time user requests the window be "restored" use this position and size.
-    wp_SetProp(hwnd,"wpHasRestorePos",true)
-    wp_SetProp(hwnd,"wpRestoreX",x)
-    wp_SetProp(hwnd,"wpRestoreY",y)
-    wp_SetProp(hwnd,"wpRestoreW",w)
-    wp_SetProp(hwnd,"wpRestoreH",h)
-}
-
 ; Execute a pseudo-command with params.
 wp_ExecLine(cmdline)
 {
@@ -723,99 +352,6 @@ wp_ExecLine(cmdline)
             gosub %aName%
     }
 }
-
-; Get the index of the monitor containing the specified x and y co-ordinates.
-wp_GetMonitorAt(x, y, default=1)
-{
-    SysGet, m, MonitorCount
-    ; Iterate through all monitors.
-    Loop, %m%
-    {   ; Check if the window is on this monitor.
-        SysGet, Mon, Monitor, %A_Index%
-        if (x >= MonLeft && x <= MonRight && y >= MonTop && y <= MonBottom)
-            return A_Index
-    }
-
-    return default
-}
-
-; Get/set window property. type should be int, uint or float.
-wp_GetProp(hwnd, property_name, type="int") {
-    return DllCall("GetProp", "uint", hwnd, "str", property_name, type)
-}
-wp_SetProp(hwnd, property_name, data, type="int") {
-    return DllCall("SetProp", "uint", hwnd, "str", property_name, type, data)
-}
-
-; Determine if we should attempt to resize the last found window.
-wp_IsResizable()
-{
-    WinGetClass, Class
-    if Class in Chrome_XPFrame,MozillaUIWindowClass
-        return true
-    WinGet, Style, Style
-    return (Style & 0x40000) ; WS_SIZEBOX
-}
-
-; Custom WinExist() for implementing a couple extra "special" values.
-wp_WinExist(WinTitle)
-{
-    if WinTitle = P
-        return wp_WinPreviouslyActive()
-    if WinTitle = M
-    {
-        MouseGetPos,,, win
-        return WinExist("ahk_id " win)
-    }
-    if WinTitle = _
-        return wp_WinLastMinimized()
-    return WinExist(WinTitle!="" ? WinTitle : "A")
-}
-
-; Get next window beneath the active one in the z-order.
-wp_WinPreviouslyActive()
-{
-    active := WinActive("A")
-    WinGet, win, List
-
-    ; Find the active window.
-    ; (Might not be win1 if there are always-on-top windows?)
-    Loop, %win%
-        if (win%A_Index% = active)
-        {
-            if (A_Index < win)
-                N := A_Index+1
-            
-            ; hack for PSPad: +1 seems to get the document (child!) window, so do +2
-            ifWinActive, ahk_class TfPSPad
-                N += 1
-            
-            break
-        }
-
-    ; Use WinExist to set Last Found Window (for consistency with WinActive())
-    return WinExist("ahk_id " . win%N%)
-}
-
-; Get most recently minimized window.
-wp_WinLastMinimized()
-{
-    WinGet, w, List
-
-    Loop %w%
-    {
-        wi := w%A_Index%
-        WinGet, m, MinMax, ahk_id %wi%
-        if m = -1 ; minimized
-        {
-            lastFound := wi
-            break
-        }
-    }
-
-    return WinExist("ahk_id " . (lastFound ? lastFound : 0))
-}
-
 
 ; Hotkey_Params( line [, Options ] )
 ;   Associates a hotkey with a parameter string.
@@ -917,217 +453,4 @@ wp_SetTrayIcon(is_enabled)
     ; avoid an error message if the icon doesn't exist
     IfExist, %icon%
         Menu, TRAY, Icon, %icon%,, 1
-}
-
-; --------------------------------------------------------------------------------------------------------------------------
-; Minimizes all Windows on the given Screen
-;
-; Author: hoppfrosch, 20110126
-MinimizeWindowsOnMonitor(md)
-{
-    SysGet, mc, MonitorCount
-    if (md<1 or md>mc)
-        return
-
-    ; List all visible windows.
-    WinGet, win, List
-    Loop, %win%
-    {
-        this_id := win%A_Index%
-        WinGetTitle, this_title, ahk_id %this_id%
-        WinGetPos, x, y, w, h, %this_title%
-        ; Determine which monitor this window is on.
-        xc := x+w/2, yc := y+h/2
-        mcurr := wp_GetMonitorAt(xc, yc, 0)
-        
-        if (mcurr=md) 
-        {
-            WinMinimize, %this_title%
-        }
-    }
-}
-
-; --------------------------------------------------------------------------------------------------------------------------
-; Toogles Always on top for given window
-;
-; Author: hoppfrosch, 20110125
-TopToggle(winTitle) {
-    if hwnd := wp_WinExist(winTitle)
-    {
-        WinSet, AlwaysOnTop, toggle
-    }
-}
-
-
-; --------------------------------------------------------------------------------------------------------------------------
-; Moves mouse to center of given monitor
-;
-; Author: hoppfrosch, 20110125
-MoveMouseToMonitor(md)
-{
-    SysGet, mc, MonitorCount
-    if (md<1 or md>mc)
-        return
-    
-    Loop, %mc%
-        SysGet, mon%A_Index%, MonitorWorkArea, %A_Index%
-    
-    ; Destination monitor
-    mdx := mon%md%Left
-    mdy := mon%md%Top
-    mdw := mon%md%Right - mdx
-    mdh := mon%md%Bottom - mdy
-    
-    mdxc := mdx+mdw/2, mdyc := mdy+mdh/2
-    
-    CoordMode, Mouse, Screen
-    MouseMove, mdxc, mdyc, 0
-    MouseLocator()
-}
-
-
-; --------------------------------------------------------------------------------------------------------------------------
-; Clips the mouse to a given area
-;
-; Author: x79animal (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537)
-wp_ClipCursor( Confine=True, x1=0 , y1=0, x2=1, y2=1 ) 
-{
-    VarSetCapacity(R,16,0),  NumPut(x1,&R+0),NumPut(y1,&R+4),NumPut(x2,&R+8),NumPut(y2,&R+12)
-    Return Confine ? DllCall( "ClipCursor", UInt,&R ) : DllCall( "ClipCursor" )
-}
-
-; --------------------------------------------------------------------------------------------------------------------------
-; Toogles clipping mouse to current monitor
-;
-; Author: hoppfrosch, 20110126
-ClipCursorToggle()
-{
-    Static IsLocked
-    
-    if (IsLocked=True)
-    {
-        wp_ClipCursor( False )      ; Turn clipping off
-        IsLocked:=False
-    }
-    else 
-    {
-        CoordMode, Mouse, Screen
-        MouseGetPos, xpos, ypos
-        md := wp_GetMonitorAt(xpos, ypos, 0)
-
-        SysGet, mc, MonitorCount
-        Loop, %mc%
-            SysGet, mon%A_Index%, MonitorWorkArea, %A_Index%
-    
-        ; Destination monitor
-        mdx1 := mon%md%Left
-        mdy1 := mon%md%Top
-        mdx2 := mon%md%Right
-        mdy2 := mon%md%Bottom
-        
-        OutputDebug %xpos% * %ypos% * MD: %md% * %mdx1% * %mdy1% * %mdx2% * %mdy2%
-        
-        wp_ClipCursor(True,mdx1,mdy1,mdx2,mdy2)
-        IsLocked := True
-    }
-}
-        
-; --------------------------------------------------------------------------------------------------------------------------
-; Restricts mouse to given monitor
-;
-; Author: hoppfrosch, 20110125
-RestrictMouseToMonitor(md)
-{
-    SysGet, mc, MonitorCount
-    if (md<0 or md>mc)
-        return
-    
-    if (md=0) 
-    {
-        wp_ClipCursor( False,0,0,1,1)      ; Turn clipping off
-        return
-    }
-    
-    Loop, %mc%
-        SysGet, mon%A_Index%, MonitorWorkArea, %A_Index%
-    
-    ; Destination monitor
-    mdx1 := mon%md%Left
-    mdy1 := mon%md%Top
-    mdx2 := mon%md%Right
-    mdy2 := mon%md%Bottom
-    
-    wp_ClipCursor(True,mdx1,mdy1,mdx2,mdy2)
-}
-
-; --------------------------------------------------------------------------------------------------------------------------
-; easy find the mouse
-;
-; Author: Skrommel (http://www.donationcoder.com/Software/Skrommel/MouseMark/MouseMark.ahk)
-; Modified by: hoppfrosch, 20110127
-;
-MouseLocator()
-{
-    Global applicationname
-    
-    SetWinDelay,0 
-    DetectHiddenWindows,On
-    CoordMode,Mouse,Screen
-    
-    delay := 100
-    size1 := 250
-    size2 := 200
-    size3 := 150
-    size4 := 100
-    size5 := 50
-    col1 := "Red"
-    col2 := "Blue"
-    col3 := "Yellow"
-    col4 := "Lime"
-    col5 := "Green"
-    boldness1 := 700
-    boldness2 := 600
-    boldness3 := 500
-    boldness4 := 400
-    boldness5 := 300
-    
-    Transform, OutputVar, Chr, 177
-    
-    Loop,5
-    { 
-      MouseGetPos,x,y 
-      size:=size%A_Index%
-      width:=size%A_Index%*1.4
-      height:=size%A_Index%*1.4
-      colX:=col%A_Index%
-      boldness:=boldness%A_Index%
-      Gui,%A_Index%:Destroy
-      Gui,%A_Index%:+Owner +AlwaysOnTop -Resize -SysMenu -MinimizeBox -MaximizeBox -Disabled -Caption -Border -ToolWindow 
-      Gui,%A_Index%:Margin,0,0 
-      Gui,%A_Index%:Color,123456
-      
-      ;Gui,%A_Index%:Font,C%color% S%size% W%boldness%,Times
-      ;Gui,%A_Index%:Add,Text,,*
-      Gui,%A_Index%:Font,c%colX% S%size% W%boldness%,Wingdings
-      ;Gui,%A_Index%:Font,cBlue S%size% W%boldness%,Wingdings
-      Gui,%A_Index%:Add,Text,,%OutputVar%
-      ; Gui,%A_Index%:Add,Text,,±
-      
-      Gui,%A_Index%:Show,X-%width% Y-%height% W%width% H%height% NoActivate,%applicationname%%A_Index%
-      WinSet,TransColor,123456,%applicationname%%A_Index%
-    }
-    Loop,5
-    {
-        MouseGetPos,x,y 
-        WinMove,%applicationname%%A_Index%,,% x-size%A_Index%/1.7,% y-size%A_Index%/1.4
-        WinShow,%applicationname%%A_Index%
-        Sleep,%delay%
-        WinHide,%applicationname%%A_Index%
-        ;Sleep,%delay% 
-    }
-
-    Loop,5
-    { 
-        Gui,%A_Index%:Destroy
-    }
 }
