@@ -1,14 +1,32 @@
-WindowPadX 0.0.1
-================
+WindowPadX
+==========
 
 Introduction
 ------------
 
-WindowPadX is an enhancement of WindowPad, written by Lexikos (see: http://http://www.autohotkey.com/forum/viewtopic.php?t=21703)
+***WindowPadX*** is an enhancement of ***WindowPad***, originally released by Lexikos (see: http://http://www.autohotkey.com/forum/viewtopic.php?t=21703)
 
-WindowPad is a tool, which provides some useful functinality within multi monitor environments.
+***WindowPadX*** is a tool which provides some useful functionality within multi monitor environments.
 
-New Features
-------------
+Features
+--------
+- Possible actions to be configured on hotkeys
+    - Window actions
+      - Multi-Monitor
+          - WPXA_MoveWindowToMonitor: Move window between screens, preserving relative position and size.
+          - WPXA_MinimizeWindowsOnMonitor: Minimize all windows on the given Screen
+          - WPXA_GatherWindowsOnMonitor: "Gather" windows on a specific screen.
+          - WPXA_FillVirtualScreen: Expand the window to fill the virtual screen (all monitors).
+      - General
+          - WPXA_MaximizeToggle: Maximize or restore the window.
+          - WPXA_TopToggle: Toogles "Always On Top" for given window
+          - WPXA_Move: move and resize window based on a "pad" concept.
+    - Mouse actions
+      - Multi-Monitor
+          - WPXA_MoveMouseToMonitor: Moves mouse to center of given monitor
+          - WPXA_ClipCursorToCurrentMonitorToggle: Toogles clipping mouse to current monitor
+          - WPXA_ClipCursorToMonitor: Clips (Restricts) mouse to given monitor
+      - General
+          - WPXA_MouseLocator: Easy find the mouse 
 
-- ***ToDo: Describe new features here ...****
+- ***ToDo: Describe additional features here ...****

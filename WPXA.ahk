@@ -233,25 +233,20 @@ wp_IsResizable()
     return (CurrStyle & 0x40000) ; WS_SIZEBOX
 }
 
-/*
+/*!
 ===============================================================================
-Function:   wp_IsWhereWePutIt
-  Restores windows position and size previously stored with <wp_RememberPos>
+    Function:   wp_IsWhereWePutIt(hwnd, x, y, w, h)
+        Restores windows position and size previously stored with <wp_RememberPos>
   
-Parameters:
-  hwnd - Window handle
-
-Return Values:
-   x,y,w,h -  last position and size. - or false
+    Parameters:
+        hwnd - Window handle
+        
+    Returns:
+        x,y,w,h -  last position and size. - or false
    
-See also:
-  <wp_RememberPos>
-  
-Classification: 
-  Helper function
-
-Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Extra:
+        ### Author
+        Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_IsWhereWePutIt(hwnd, x, y, w, h)
