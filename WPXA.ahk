@@ -1,5 +1,5 @@
 /*!
-	Library: WindowPadX-Actions library, version 0.1.3
+	Library: WindowPadX-Actions library, version 0.1.5
 		Implementation of different useful actions for handling windows in general and within a multi-monitor setup in special. Functions starting with the prefix ***wp*** are internal helper functions: Functions starting with the prefix ***WPXA*** are designed to be used as actions within WindowPadX.
         
 	Author: Hoppfrosch
@@ -10,6 +10,9 @@
 		ShinyWong - for his "GetMonitorIndexFromWindow" function (http://www.autohotkey.com/forum/viewtopic.php?p=462080#462080)
 		Skrommel - for his "MouseMark" function (http://www.donationcoder.com/Software/Skrommel/MouseMark/MouseMark.ahk)
 		x97animal - for his "clipCursor" Function (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537)
+		
+		### Changes
+		0.1.5 - [-] WPAX_MouseLocator(): Using integer coordinates for Gui Show
 */
 
 ; ****** HINT: Documentation can be extracted to HTML using GenDocs 3.0 (http://http://www.autohotkey.com/forum/viewtopic.php?t=76949) ************** */
@@ -29,7 +32,7 @@
 */
 WPXA_version()
 {
-    return "0.1.4"
+    return "0.1.5"
 }
 
 /*!
@@ -1178,8 +1181,8 @@ WPXA_MouseLocator()
     { 
       MouseGetPos,x,y 
       size:=size%A_Index%
-      width:=size%A_Index%*1.4
-      height:=size%A_Index%*1.4
+      width:=Round(size%A_Index%*1.4)
+      height:=Round(size%A_Index%*1.4)
       colX:=col%A_Index%
       boldness:=boldness%A_Index%
       Gui,%A_Index%:Destroy

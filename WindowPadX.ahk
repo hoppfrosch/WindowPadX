@@ -1,6 +1,15 @@
-; WindowPadX v1.0.0
+; WindowPadX v1.0.1
 ;   derived from http://www.autohotkey.com/forum/topic21703.html
 ;   Requires AutoHotkey v1.1.0 or later.
+;
+;  Author: hoppfrosch
+;
+/* 
+Version History:
+    1.0.1 - 13.Jan.2012 Hoppfrosch
+        * WPAX.ahk v0.1.5 - WPAX_MouseLocator(): Using integer coordinates for Gui Show
+    1.0.0 - 12.Jan.2012 Hoppfrosch
+        * Initial release of WindowPadX
 
 /*
 --------------------------------------------------------------------------------------
@@ -25,7 +34,7 @@ Ideensammlung:
 
 #SingleInstance force
 
-Version := "1.0.0"
+Version := "1.0.1"
 
 if 0 > 0
 {
