@@ -12,14 +12,18 @@
 		x97animal - for his "clipCursor" Function (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537)
 		
 		### Changes
-        0.1.6 - [+] WPAX_TopToggle(): Reanimated Notification
+        0.1.7 - [+] WPAX_RollToggle(): Toggles Roll/Unroll State of window 
+                [+] wp_RollWindow(): Rolls up a window to its titlebar
+                [+] wp_UnRollWindow(): Unrolls a previously rolled up window (restores original height)
+        0.1.6 - [*] WPAX_TopToggle(): Reanimated Notification (removed Parameter ShowNotification)
                 [*] Extended Debug-Logging via OutputDebug
                     - Unified Output format
                     - Created posibillity to remove debug information (via Tag _DBG_)
-		0.1.5 - [-] WPAX_MouseLocator(): Using integer coordinates for Gui Show
+         0.1.5 - [-] WPAX_MouseLocator(): Using integer coordinates for Gui Show
 */
 
 ; ****** HINT: Documentation can be extracted to HTML using GenDocs 3.0 (http://http://www.autohotkey.com/forum/viewtopic.php?t=76949) ************** */
+
 
 /*!
 ===============================================================================
@@ -36,7 +40,7 @@
 */
 WPXA_version()
 {
-    return "0.1.6"
+    return "0.1.7"
 }
 
 /*!
@@ -337,6 +341,7 @@ Function:   wp_Restore
   
   Following states are restored:
   * AlwaysOnTop
+  * RolledWindow
     
 Classification: 
   Helper function
@@ -367,13 +372,55 @@ wp_Restore() {
                 OutputDebug % _DBG_FName "Current State of AlwaysOnTop: " wp_IsAlwaysOnTop(WinTitle)    ; _DBG_
             }
         }
-        else if wp_GetProp(hwnd,"wpHasRestorePos") {
+        else if (wp_GetProp(hwnd,"wpHasRestorePos")) {
             OutputDebug % _DBG_FName "Window <" WinTitle "> has property <HasRestorePos!>"    ; _DBG_
+        }
+        else if (wp_GetProp(hwnd,"wpRolledUp") = 1)
+        {
+            OutputDebug % _DBG_FName "RollWindow disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+            wp_UnRollWindow(hwnd)
         }
         
         
     }
 }
+
+/*!
+===============================================================================
+    Function:   wp_RollWindow(hWnd)
+        Rolls a window up to its titlebar (windowheight is resized to height of captionbar)
+
+    Parameters:
+         hWnd - Window handle
+      
+    Extra:
+		### Author
+        20120116 - hoppfrosch - Original
+===============================================================================
+*/
+wp_RollWindow(hwnd)
+{
+     _DBG_FName := A_ScriptName "-[wp_RollWindow] - "   ; _DBG_
+    WinGetClass, WinClass, ahk_id %hwnd%    ; _DBG_
+    WinGetTitle, WinTitle, ahk_id %hwnd%    ; _DBG_
+        
+    ; Determine the height of caption 
+    SysGet, CaptionHeight, 4
+    ; Get size of current window
+    WinGetPos, x, y, width, height, ahk_id %hwnd%
+    
+    if (wp_GetProp(hwnd,"wpRolledUp") = 0) 
+    {
+        if (height > CaptionHeight)
+        {
+            wp_SetProp(hwnd,"wpRolledUp",1)
+            wp_SetProp(hwnd,"wpUnrolledHeight",height)
+            WinMove, ahk_id %hwnd%, , , , ,%CaptionHeight%
+            OutputDebug % _DBG_FName "RollWindow enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+        }
+    }
+}
+
 /*
 ===============================================================================
 Function:   wp_SetProp
@@ -435,6 +482,36 @@ wp_SetRestorePos(hwnd, x, y, w, h)
     wp_SetProp(hwnd,"wpRestoreH",h)
 }
 
+/*!
+===============================================================================
+    Function:   wp_UnRollWindow(hWnd)
+        Unrolls a previously rolled window
+
+    Parameters:
+         hWnd - Window handle
+      
+    Extra:
+		### Author
+        20120116 - hoppfrosch - Original
+===============================================================================
+*/
+wp_UnRollWindow(hwnd)
+{
+    _DBG_FName := A_ScriptName "-[wp_UnRollWindow] - "   ; _DBG_
+    WinGetClass, WinClass, ahk_id %hwnd%    ; _DBG_
+    WinGetTitle, WinTitle, ahk_id %hwnd%    ; _DBG_
+    
+    if (wp_GetProp(hwnd,"wpRolledUp") = 1)
+    {
+        height := wp_GetProp(hwnd,"wpUnrolledHeight")
+        WinMove, ahk_id %hwnd%, , , , ,%height%
+        wp_SetProp(hwnd,"wpRolledUp", 0)
+        wp_RemoveProp(hwnd,"wpUnrolledHeight")
+        OutputDebug % _DBG_FName "RollWindow disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+    }
+    
+}
+
 /*
 ===============================================================================
 Function:   wp_WinExist
@@ -482,7 +559,7 @@ Classification:
   Helper function
 
 Author(s):
-  Original - hoppfrosch - 20110607
+  20110607 - hoppfrosch - Original
 ===============================================================================
 */
 wp_WinGetTitle(WinTitle)
@@ -1230,6 +1307,43 @@ WPXA_MouseLocator()
     }
 }
 
+/*!
+===============================================================================
+    Function:   WPXA_RollToggle(WinTitle)
+        Toogles "Roll/Unroll" for given window
+
+    Parameters:
+        WinTitle - Title of the window
+      
+    Extra:
+		### Author
+        20120116 - hoppfrosch - Original
+===============================================================================
+*/
+WPXA_RollToggle(WinTitle) {
+    
+    if hwnd := wp_WinExist(WinTitle)
+    {
+        _DBG_FName := A_ScriptName "-[WPXA_RollToggle] - "   ; _DBG_
+        WinGetClass, WinClass, ahk_id %hwnd%    ; _DBG_
+        WinGetTitle, WinTitle, ahk_id %hwnd%    ; _DBG_
+        
+        CurrWinTitle := wp_WinGetTitle(WinTitle)
+        if (wp_GetProp(hwnd,"wpRolledUp") = 1)
+        {
+            OutputDebug % _DBG_FName "RollWindow disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+            Notify(A_ScriptName,CurrWinTitle "`nRollWindow disabled - " hwnd,2,,"icons/minus.png")
+            wp_UnRollWindow(hwnd)
+        }
+        else
+        {
+            OutputDebug % _DBG_FName "RollWindow enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+            Notify(A_ScriptName,CurrWinTitle "`nRollWindow enabled - " hwnd,2,,A_ScriptDir "/icons/plus.png")
+            wp_RollWindow(hwnd)
+        }
+    }
+}
+
 WPXA_ShadeToggle(WinTitle)
 {
     applicationname := A_ScriptName
@@ -1282,19 +1396,17 @@ WPXA_ShadeToggle(WinTitle)
     return
 }
 
-/*
+/*!
 ===============================================================================
-Function:   WPXA_TopToggle
-  Toogles "Always On Top" for given window
+    Function:   WPXA_TopToggle(WinTitle)
+        Toogles "Always On Top" for given window
 
-Parameters:
-  WinTitle - Title of the window
-  
-Classification: 
-  WindowPadX-Action
-
-Author(s):
-  20110811 - hoppfrosch - Initial
+    Parameters:
+        WinTitle - Title of the window
+      
+    Extra:
+		### Author
+        20110811 - hoppfrosch - Initial
 ===============================================================================
 */
 WPXA_TopToggle(WinTitle) {
@@ -1311,13 +1423,13 @@ WPXA_TopToggle(WinTitle) {
         if (wp_IsAlwaysOnTop(WinTitle))
         {
             OutputDebug % _DBG_FName "AlwaysOnTop enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-            Notify(A_ScriptName,CurrWinTitle "`nAlways on top enabled - " hwnd,2,,A_ScriptDir "/icons/plus.png")
+            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop enabled - " hwnd,2,,A_ScriptDir "/icons/plus.png")
             wp_SetProp(hwnd,"wpAlwaysOnTop",1)
         }
         else
         {
             OutputDebug % _DBG_FName "AlwaysOnTop disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-            Notify(A_ScriptName,CurrWinTitle "`nAlways on top disabled - " hwnd,2,,"icons/minus.png")
+            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop disabled - " hwnd,2,,"icons/minus.png")
             wp_RemoveProp(hwnd,"wpAlwaysOnTop")
         }
     }
