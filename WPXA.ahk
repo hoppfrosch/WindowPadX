@@ -1,5 +1,5 @@
 /*!
-	Library: WindowPadX-Actions library, version 0.1.5
+	Library: WindowPadX-Actions library
 		Implementation of different useful actions for handling windows in general and within a multi-monitor setup in special. Functions starting with the prefix ***wp*** are internal helper functions: Functions starting with the prefix ***WPXA*** are designed to be used as actions within WindowPadX.
         
 	Author: Hoppfrosch
@@ -12,6 +12,10 @@
 		x97animal - for his "clipCursor" Function (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537)
 		
 		### Changes
+        0.1.6 - [+] WPAX_TopToggle(): Reanimated Notification
+                [*] Extended Debug-Logging via OutputDebug
+                    - Unified Output format
+                    - Created posibillity to remove debug information (via Tag _DBG_)
 		0.1.5 - [-] WPAX_MouseLocator(): Using integer coordinates for Gui Show
 */
 
@@ -32,7 +36,7 @@
 */
 WPXA_version()
 {
-    return "0.1.5"
+    return "0.1.6"
 }
 
 /*!
@@ -93,11 +97,11 @@ wp_GetMonitorAt(x, y, default=1)
 
 /*!
 ===============================================================================
-    Function:   wp_GetMonitorFromWindow(windowHandle)
+    Function:   wp_GetMonitorFromWindow(hWnd)
         Get the index of the monitor containing the specified window.
 
     Parameters:
-        windowHandle - Window handle
+        hWnd - Window handle
   
     Returns:
         Index of the monitor of specified window
@@ -108,7 +112,7 @@ wp_GetMonitorAt(x, y, default=1)
         Original - [ShinyWong](http://www.autohotkey.com/forum/viewtopic.php?p=462080#462080)
 ===============================================================================
 */
-wp_GetMonitorFromWindow(windowHandle)
+wp_GetMonitorFromWindow(hWnd)
 {
    ; Starts with 1.
    monitorIndex := 1
@@ -116,7 +120,7 @@ wp_GetMonitorFromWindow(windowHandle)
    VarSetCapacity(monitorInfo, 40)
    NumPut(40, monitorInfo)
    
-   if (monitorHandle := DllCall("MonitorFromWindow", "uint", windowHandle, "uint", 0x2))
+   if (monitorHandle := DllCall("MonitorFromWindow", "uint", hWnd, "uint", 0x2))
       && DllCall("GetMonitorInfo", "uint", monitorHandle, "uint", &monitorInfo)
    {
       monitorLeft   := NumGet(monitorInfo,  4, "Int")
@@ -182,7 +186,7 @@ wp_GetProp(hwnd, property_name, type="int") {
 
     Parameters:
         WinTitle - Title of the window
-        IsSetByWP - (***Optional***) Checks whether "AlwaysOnTop" was set with WindowPad (needed to restore state ...) (Default: 0)
+        IsSetByWP - (***Optional***) Checks whether "AlwaysOnTop" was set with WindowPadX (needed to restore state ...) (Default: 0)
   
     Returns:
         True or False
@@ -317,6 +321,12 @@ Author(s):
 ===============================================================================
 */
 wp_RemoveProp(hwnd, property_name) {
+    
+    _DBG_FName := A_ScriptName "-[wp_RemoveProp] - "   ; _DBG_
+    WinGetClass, WinClass, ahk_id %hwnd%    ; _DBG_
+    WinGetTitle, WinTitle, ahk_id %hwnd%    ; _DBG_
+    OutputDebug % _DBG_FName "Remove Property <" property_name "> for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+    
     return DllCall("RemoveProp", "uint", hwnd, "str", property_name)
 }
 
@@ -337,26 +347,30 @@ Author(s):
 */
 wp_Restore() {
     ;MsgBox % "wp_Restore(): Vollstaendige Implementierung"
+    _DBG_FName := A_ScriptName "-[wp_Restore] - "   ; _DBG_
     
-    _DBG_FName = "[wp_Restore] - "
     WinGet, id, list, , , Program Manager
     Loop, %id%
     {
         ; Aktionen rückhängig ...
         hwnd := id%A_Index%
-        ; WinActivate, ahk_id %hwnd%
-        WinGetClass, WinClass, ahk_id %hwnd%
         WinGetTitle, WinTitle, ahk_id %hwnd%
-        OutputDebug % _DBG_FName "Besuche Fenster <" a_index "/" id ">: ahk_id: " hwnd " - win_class: " WinClass " - win_title: " WinTitle
+        
+        WinGetClass, WinClass, ahk_id %hwnd%    ; _DBG_
+        OutputDebug % _DBG_FName "Besuche Fenster <" a_index "/" id ">: ahk_id: " hwnd " - win_class: " WinClass " - win_title: " WinTitle   ; _DBG_
         
         if wp_GetProp(hwnd,"wpAlwaysOnTop") {
-            OutputDebug % _DBG_FName "Window <" WinTitle "> has property always on top!"
+            OutputDebug % _DBG_FName "Window <" WinTitle "> has property <AlwaysOnTop!>"    ; _DBG_
             if wp_IsAlwaysOnTop(WinTitle,1) {
-                OutputDebug % _DBG_FName "Disable AlwaysOnTop since it was set by WindowPad"
+                OutputDebug % _DBG_FName "Disable AlwaysOnTop since it was set by WindowPadX"   ; _DBG_
                 WPXA_TopToggle(WinTitle)
-                OutputDebug % _DBG_FName "Current State of AlwaysOnTop: " wp_IsAlwaysOnTop(WinTitle)
+                OutputDebug % _DBG_FName "Current State of AlwaysOnTop: " wp_IsAlwaysOnTop(WinTitle)    ; _DBG_
             }
         }
+        else if wp_GetProp(hwnd,"wpHasRestorePos") {
+            OutputDebug % _DBG_FName "Window <" WinTitle "> has property <HasRestorePos!>"    ; _DBG_
+        }
+        
         
     }
 }
@@ -385,6 +399,10 @@ Author(s):
 ===============================================================================
 */
 wp_SetProp(hwnd, property_name, data, type="int") {
+    _DBG_FName := A_ScriptName "-[wp_SetProp] - "   ; _DBG_
+    WinGetClass, WinClass, ahk_id %hwnd%    ; _DBG_
+    WinGetTitle, WinTitle, ahk_id %hwnd%    ; _DBG_
+    OutputDebug % _DBG_FName "Set Property <" property_name "> to data <" data "> for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
     return DllCall("SetProp", "uint", hwnd, "str", property_name, type, data)
 }
 
@@ -908,7 +926,7 @@ WPXA_Move(sideX, sideY, widthFactor, heightFactor, winTitle)
         }
     }
     else
-    {   ; WindowPad didn't put that window here, so save this position before moving.
+    {   ; WindowPadX didn't put that window here, so save this position before moving.
         wp_SetRestorePos(hwnd, x, y, w, h)
         if SubStr(sideX,1,1) = "R"
             StringTrimLeft, sideX, sideX, 1
@@ -1271,7 +1289,6 @@ Function:   WPXA_TopToggle
 
 Parameters:
   WinTitle - Title of the window
-  ShowNotification - Flag to disable balloon-notification
   
 Classification: 
   WindowPadX-Action
@@ -1280,34 +1297,30 @@ Author(s):
   20110811 - hoppfrosch - Initial
 ===============================================================================
 */
-WPXA_TopToggle(WinTitle,ShowNotification=1) {
-    
-    applicationname := A_ScriptName
+WPXA_TopToggle(WinTitle) {
     
     if hwnd := wp_WinExist(WinTitle)
     {
         WinSet, AlwaysOnTop, toggle
 
+        _DBG_FName := A_ScriptName "-[WPXA_TopToggle] - "   ; _DBG_
+        WinGetClass, WinClass, ahk_id %hwnd%    ; _DBG_
+        WinGetTitle, WinTitle, ahk_id %hwnd%    ; _DBG_
+        
         CurrWinTitle := wp_WinGetTitle(WinTitle)
         if (wp_IsAlwaysOnTop(WinTitle))
         {
-            if ShowNotification=1 
-            {
-                Notify(applicationname,CurrWinTitle "`nAlways on top enabled - " hwnd,2,,"icons/plus.png")
-            }
+            OutputDebug % _DBG_FName "AlwaysOnTop enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+            Notify(A_ScriptName,CurrWinTitle "`nAlways on top enabled - " hwnd,2,,A_ScriptDir "/icons/plus.png")
             wp_SetProp(hwnd,"wpAlwaysOnTop",1)
         }
         else
         {
-            if ShowNotification=1 
-            {
-                Notify(applicationname,CurrWinTitle "`nAlways on top disabled - " hwnd,2,,"icons/minus.png")
-            }
+            OutputDebug % _DBG_FName "AlwaysOnTop disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+            Notify(A_ScriptName,CurrWinTitle "`nAlways on top disabled - " hwnd,2,,"icons/minus.png")
             wp_RemoveProp(hwnd,"wpAlwaysOnTop")
         }
     }
 }
-
-
 
 #include %A_ScriptDir%\_inc\Notify.ahk
