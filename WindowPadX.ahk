@@ -6,27 +6,25 @@
 ;
 /* 
 Version History:
+    1.1.0 - 13.Jan.2012 Hoppfrosch
+        [*] WPAX.ahk v0.1.6 - WPAX_TopToggle(): Reanimated Notifications
+        [+] WPAX.ahk v0.1.7 - WPAX_RollToggle(): New action for toggling rolling a window to its captionbar
     1.0.1 - 13.Jan.2012 Hoppfrosch
-        * WPAX.ahk v0.1.5 - WPAX_MouseLocator(): Using integer coordinates for Gui Show
+        [*] WPAX.ahk v0.1.5 - WPAX_MouseLocator(): Using integer coordinates for Gui Show
     1.0.0 - 12.Jan.2012 Hoppfrosch
         * Initial release of WindowPadX
 
 /*
 --------------------------------------------------------------------------------------
 Ideensammlung:
-* Roll/Unroll Action: http://www.autohotkey.com/forum/viewtopic.php?p=9859#9859
-* "AlwaysOnTop": Anzeige Win-Caption (Titelzeile des Windows)
 * Transparenz für Fenster
-* Overlay-Icon in Taskbar, um anzuzeigen auf welchem Screen sich das Fenster befindet ... (Funktion aus ITaskBar von maul.esel)
+* Overlay-Icon in Taskbar, um anzuzeigen auf welchem Screen sich das Fenster befindet ... (Funktion aus ITaskBar von maul.esel). Dies sollte bei verlassen des Programmes auch wieder entfernt werden.
   Hinweise:
   * http://www.autohotkey.com/forum/viewtopic.php?t=74314
   * http://www.autohotkey.com/forum/viewtopic.php?t=70978
-  
-* Wiederherstellen des "Normalzustandes von Fenstern" bei Programmende (AlwaysOnTop, Rollup, OverlayIcons entfernen ...) 
-  Realisierungsidee:
-  * Speichern der Aktion in den WindowsProperties() -> wp_SetProp(...)
-  * Bei Programmende über alle Fenster iterieren und Aktionen rückgängig machen -< wp_Restore()
-
+* "TaskSwitcher" fuer jeden Monitor
+  Hinweise:
+  * http://www.autohotkey.com/forum/viewtopic.php?t=71912
 -------------------------------------------------------------------------------------- 
 */
 
@@ -34,7 +32,7 @@ Ideensammlung:
 
 #SingleInstance force
 
-Version := "1.0.1"
+Version := "1.0.2"
 
 if 0 > 0
 {
