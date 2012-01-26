@@ -1,4 +1,4 @@
-; WindowPadX v1.0.1
+; WindowPadX
 ;   derived from http://www.autohotkey.com/forum/topic21703.html
 ;   Requires AutoHotkey v1.1.0 or later.
 ;
@@ -6,6 +6,8 @@
 ;
 /* 
 Version History:
+    1.1.1 - 26.Jan.2012 Hoppfrosch
+        [*] WPAX.ahk - WPAX_MaximizeToggle(): Bugfix to actually toggle Maximization
     1.1.0 - 13.Jan.2012 Hoppfrosch
         [*] WPAX.ahk v0.1.6 - WPAX_TopToggle(): Reanimated Notifications
         [+] WPAX.ahk v0.1.7 - WPAX_RollToggle(): New action for toggling rolling a window to its captionbar
@@ -32,7 +34,7 @@ Ideensammlung:
 
 #SingleInstance force
 
-Version := "1.0.2"
+Version := "1.1.1"
 
 if 0 > 0
 {

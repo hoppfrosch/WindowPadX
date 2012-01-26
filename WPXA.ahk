@@ -12,6 +12,7 @@
 		x97animal - for his "clipCursor" Function (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537)
 		
 		### Changes
+        0.1.8 - [*] WPAX_MaximizeToggle(): Bugfix to actually toggle Maximization  (see: http://www.autohotkey.com/forum/post-508122.html#508122 - thanks to sjkeegs) 
         0.1.7 - [+] WPAX_RollToggle(): Toggles Roll/Unroll State of window 
                 [+] wp_RollWindow(): Rolls up a window to its titlebar
                 [+] wp_UnRollWindow(): Unrolls a previously rolled up window (restores original height)
@@ -40,7 +41,7 @@
 */
 WPXA_version()
 {
-    return "0.1.7"
+    return "0.1.8"
 }
 
 /*!
@@ -895,13 +896,22 @@ Author(s):
 */
 WPXA_MaximizeToggle(winTitle)
 {
-    if wp_WinExist(winTitle)
+    if hwnd := wp_WinExist(winTitle)
     {
+        WinGetPos, x, y, w, h
+        if !wp_IsWhereWePutIt(hwnd, x, y, w, h)
+            {
+            ; WindowPadX didn't put that window here, so save this position before moving.
+            wp_SetRestorePos(hwnd, x, y, w, h)
+            }
+
         WinGet, state, MinMax
         if state
             WinRestore
         else
             WinMaximize
+
+        wp_RememberPos(hwnd)
     }
 }
 
