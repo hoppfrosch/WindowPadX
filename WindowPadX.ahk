@@ -6,6 +6,8 @@
 ;
 /* 
 Version History:
+    1.2.0 - 19.Mar.2012 Hoppfrosch
+        [+] WPAX.ahk v0.1.8 - WPXA_TileLast2Windows(): Tile active and last window (Credits: ipstone today - Initial (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482))
     1.1.1 - 26.Jan.2012 Hoppfrosch
         [*] WPAX.ahk - WPAX_MaximizeToggle(): Bugfix to actually toggle Maximization
     1.1.0 - 13.Jan.2012 Hoppfrosch
@@ -15,10 +17,11 @@ Version History:
         [*] WPAX.ahk v0.1.5 - WPAX_MouseLocator(): Using integer coordinates for Gui Show
     1.0.0 - 12.Jan.2012 Hoppfrosch
         * Initial release of WindowPadX
-
 /*
+
 --------------------------------------------------------------------------------------
 Ideensammlung:
+* Rollup
 * Transparenz für Fenster
 * Overlay-Icon in Taskbar, um anzuzeigen auf welchem Screen sich das Fenster befindet ... (Funktion aus ITaskBar von maul.esel). Dies sollte bei verlassen des Programmes auch wieder entfernt werden.
   Hinweise:
@@ -34,7 +37,7 @@ Ideensammlung:
 
 #SingleInstance force
 
-Version := "1.1.1"
+Version := "1.2.0"
 
 if 0 > 0
 {
