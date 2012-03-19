@@ -22,6 +22,7 @@ Features
           - WPXA_TopToggle: Toogles "AlwaysOnTop" for given window
           - WPXA_RollToggle: Toggles "Roll/Unroll" for given window
           - WPXA_Move: move and resize window based on a "pad" concept.
+          - WPXA_TileLast2Windows: Tile active and last window
     - Mouse actions
       - Multi-Monitor
           - WPXA_MoveMouseToMonitor: Moves mouse to center of given monitor
