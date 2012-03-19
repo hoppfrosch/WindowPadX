@@ -12,6 +12,7 @@
 		x97animal - for his "clipCursor" Function (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537)
 		
 		### Changes
+        0.1.9 - [+] WPXA_TileLast2Windows(): Tile active and last window (see: http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482 - thanks to ipstone today 
         0.1.8 - [*] WPAX_MaximizeToggle(): Bugfix to actually toggle Maximization  (see: http://www.autohotkey.com/forum/post-508122.html#508122 - thanks to sjkeegs) 
         0.1.7 - [+] WPAX_RollToggle(): Toggles Roll/Unroll State of window 
                 [+] wp_RollWindow(): Rolls up a window to its titlebar
@@ -41,7 +42,7 @@
 */
 WPXA_version()
 {
-    return "0.1.8"
+    return "0.1.9"
 }
 
 /*!
@@ -961,7 +962,7 @@ Function:   WPXA_Move
 
 Parameters:
   sideX, sideY, widthFactor, heightFactor - **TODO**
-  winTitle - windows title
+  winTitle - windows title ("A" - Active Window, "P" - Previous Window)
   
 Classification: 
   WindowPadX-Action
@@ -1404,6 +1405,35 @@ WPXA_ShadeToggle(WinTitle)
     return
 */
     return
+}
+
+/*!
+===============================================================================
+    Function:   WPXA_TileLast2Windows()
+        Tile active and last window
+      
+    Extra:
+		### Author
+        20120316 - ipstone today - Initial (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482)
+        
+    Example:
+       #NumpadSub = WPXA_TileLast2Windows
+===============================================================================
+*/
+WPXA_TileLast2Windows() {
+    static tileOrientation := 0
+    if (tileOrientation=0)
+    { 
+        tileOrientation := 1
+        WPXA_Move(-1,0,0.5,1.0, "A")
+        WPXA_Move(+1,0,0.5,1.0, "P")
+    }
+    else
+    {
+        tileOrientation := 0
+        WPXA_Move(0,-1, 1.0, 0.5, "A")
+        WPXA_Move(0, 1, 1.0, 0.5, "P")
+    } 
 }
 
 /*!
