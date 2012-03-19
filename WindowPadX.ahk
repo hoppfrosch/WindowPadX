@@ -7,7 +7,7 @@
 /* 
 Version History:
     1.2.0 - 19.Mar.2012 Hoppfrosch
-        [+] WPAX.ahk v0.1.8 - WPXA_TileLast2Windows(): Tile active and last window (Credits: ipstone today - Initial (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482))
+        [+] WPAX.ahk v0.1.9 - WPXA_TileLast2Windows(): Tile active and last window (Credits: ipstone today - Initial (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482))
     1.1.1 - 26.Jan.2012 Hoppfrosch
         [*] WPAX.ahk - WPAX_MaximizeToggle(): Bugfix to actually toggle Maximization
     1.1.0 - 13.Jan.2012 Hoppfrosch
