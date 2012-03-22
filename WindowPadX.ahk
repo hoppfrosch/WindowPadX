@@ -1,27 +1,39 @@
-; WindowPadX
-;   derived from http://www.autohotkey.com/forum/topic21703.html
-;   Requires AutoHotkey v1.1.0 or later.
-;
-;  Author: hoppfrosch
-;
-/* 
+/*
+Title: WindowPadX
+
+*Handling windows in general and within a multi-monitor setup in special*
+    
+derived from *WindowPad* by *Lexikos* (http://www.autohotkey.com/forum/topic21703.html)
+
+For initial documentation (configuration etc.) see the documentation of original *WindowPad* by *Lexikos* (http://www.autohotkey.com/forum/topic21703.html), as *WindowPadX* 
+        is just a simple clone of *WindowPad* with reengineering and a few enhancements ....
+    
+Requires:
+    AutoHotkey v1.1.0 or later.
+
+Author: 
+    hoppfrosch
+ 
 Version History:
+    1.2.1 - 22.Mar.2012 Hoppfrosch
+        [+] WPXA.ahk v0.1.10: <wp_GetMonitorFromMouse>: Determine monitor where mouse is
+        [*] WPXA.ahk v0.1.10: <WPXA_MinimizeWindowsOnMonitor>: Minimize windows on screen where mouse is
     1.2.0 - 19.Mar.2012 Hoppfrosch
-        [+] WPAX.ahk v0.1.9 - WPXA_TileLast2Windows(): Tile active and last window (Credits: ipstone today - Initial (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482))
+        [+] WPXA.ahk v0.1.9: <WPXA_TileLast2Windows>: Tile active and last window (Credits: ipstone today (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482))
     1.1.1 - 26.Jan.2012 Hoppfrosch
-        [*] WPAX.ahk - WPAX_MaximizeToggle(): Bugfix to actually toggle Maximization
+        [*] WPXA.ahk v0.1.8: <WPXA_MaximizeToggle>: Bugfix to actually toggle Maximization
     1.1.0 - 13.Jan.2012 Hoppfrosch
-        [*] WPAX.ahk v0.1.6 - WPAX_TopToggle(): Reanimated Notifications
-        [+] WPAX.ahk v0.1.7 - WPAX_RollToggle(): New action for toggling rolling a window to its captionbar
+        [*] WPXA.ahk v0.1.6: <WPXA_TopToggle()>: Reanimated Notifications
+        [+] WPXA.ahk v0.1.7: <WPXA_RollToggle>: New action for toggling rolling a window to its captionbar
     1.0.1 - 13.Jan.2012 Hoppfrosch
-        [*] WPAX.ahk v0.1.5 - WPAX_MouseLocator(): Using integer coordinates for Gui Show
-    1.0.0 - 12.Jan.2012 Hoppfrosch
-        * Initial release of WindowPadX
+        [*] WPXA.ahk v0.1.5: <WPXA_MouseLocator>: Using integer coordinates for Gui Show
+    1.0.0 - 12.Jan.2012 Hoppfrosch: Initial release of WindowPadX
+*/
+
 /*
 
 --------------------------------------------------------------------------------------
 Ideensammlung:
-* Rollup
 * Transparenz für Fenster
 * Overlay-Icon in Taskbar, um anzuzeigen auf welchem Screen sich das Fenster befindet ... (Funktion aus ITaskBar von maul.esel). Dies sollte bei verlassen des Programmes auch wieder entfernt werden.
   Hinweise:
@@ -37,7 +49,7 @@ Ideensammlung:
 
 #SingleInstance force
 
-Version := "1.2.0"
+Version := "1.2.1"
 
 if 0 > 0
 {
