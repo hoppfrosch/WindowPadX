@@ -1,67 +1,74 @@
-/*!
-	Library: WindowPadX-Actions library
-		Implementation of different useful actions for handling windows in general and within a multi-monitor setup in special. Functions starting with the prefix ***wp*** are internal helper functions: Functions starting with the prefix ***WPXA*** are designed to be used as actions within WindowPadX.
+/*
+	Title: WindowPadX-Actions library
+		Implementation of different useful actions for handling windows in general and within a multi-monitor setup in special. 
         
-	Author: Hoppfrosch
-	License: WTFPL (http://sam.zoy.org/wtfpl/)
-	Extra:
-		### Credits
-		Lexikos - for his great work and his Original "WindowPad - multi-monitor window-moving tool" (http://www.autohotkey.com/forum/topic21703.html)
-		ShinyWong - for his "GetMonitorIndexFromWindow" function (http://www.autohotkey.com/forum/viewtopic.php?p=462080#462080)
-		Skrommel - for his "MouseMark" function (http://www.donationcoder.com/Software/Skrommel/MouseMark/MouseMark.ahk)
-		x97animal - for his "clipCursor" Function (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537)
+        Functions starting with the prefix *WPXA* are designed to be used as user-actions within *WindowPadX*,  whereas functions starting with the prefix *wp* are internal helper functions.
+        
+        For initial documentation (configuration etc.) see the documentation of original *WindowPad* by *Lexikos* (http://www.autohotkey.com/forum/topic21703.html), as *WindowPadX* 
+        is just a simple clone of *WindowPad* with reengineering and a few enhancements ....
+        
+
+	Author: 
+        hoppfrosch
+    
+	License: 
+        WTFPL (http://sam.zoy.org/wtfpl/)
+	
+    Credits: 
+		Lexikos - for his great work and his Original *"WindowPad - multi-monitor window-moving tool" * (http://www.autohotkey.com/forum/topic21703.html)
+		ShinyWong - for his "GetMonitorIndexFromWindow" function (http://www.autohotkey.com/forum/viewtopic.php?p=462080#462080) - used in <wp_GetMonitorFromWindow>
+		Skrommel - for his "MouseMark" function (http://www.donationcoder.com/Software/Skrommel/MouseMark/MouseMark.ahk) - used in <WPXA_MouseLocator>
+		x97animal - for his "clipCursor" Function (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537) - used in <wp_ClipCursor>
+        ipstone today - for his initial implementation (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482) for <WPXA_TileLast2Windows>
 		
-		### Changes
-        0.1.9 - [+] WPXA_TileLast2Windows(): Tile active and last window (see: http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482 - thanks to ipstone today 
-        0.1.8 - [*] WPAX_MaximizeToggle(): Bugfix to actually toggle Maximization  (see: http://www.autohotkey.com/forum/post-508122.html#508122 - thanks to sjkeegs) 
-        0.1.7 - [+] WPAX_RollToggle(): Toggles Roll/Unroll State of window 
-                [+] wp_RollWindow(): Rolls up a window to its titlebar
-                [+] wp_UnRollWindow(): Unrolls a previously rolled up window (restores original height)
-        0.1.6 - [*] WPAX_TopToggle(): Reanimated Notification (removed Parameter ShowNotification)
-                [*] Extended Debug-Logging via OutputDebug
-                    - Unified Output format
-                    - Created posibillity to remove debug information (via Tag _DBG_)
-         0.1.5 - [-] WPAX_MouseLocator(): Using integer coordinates for Gui Show
+	Changelog:
+        0.1.10 - [+] <wp_GetMonitorFromMouse>: Determines monitor from current mouseposition.
+                 [*] <WPXA_MinimizeWindowsOnMonitor>: added minimization of all windows on screen where mouse is.
+        0.1.9 - [+] <WPXA_TileLast2Windows>: Tile active and last window (see: http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482 - thanks to ipstone today). 
+        0.1.8 - [*] <WPXA_MaximizeToggle>: Bugfix to actually toggle Maximization  (see: http://www.autohotkey.com/forum/post-508122.html#508122 - thanks to sjkeegs). 
+        0.1.7 - [+] <WPXA_RollToggle>: Toggles Roll/Unroll State of window. 
+                [+] <wp_RollWindow>: Rolls up a window to its titlebar.
+                [+] <wp_UnRollWindow>: Unrolls a previously rolled up window (restores original height).
+        0.1.6 - [*] <WPXA_TopToggle>:  Reanimated Notification (removed Parameter ShowNotification).
+                [*] Extended Debug-Logging via OutputDebug. (Unified Output format, Created posibillity to remove debug information (via Tag _DBG_)).
+        0.1.5 - [-] <WPXA_MouseLocator>: Using integer coordinates for Gui Show.
 */
 
-; ****** HINT: Documentation can be extracted to HTML using GenDocs 3.0 (http://http://www.autohotkey.com/forum/viewtopic.php?t=76949) ************** */
+; ****** HINT: Documentation can be extracted to HTML using NaturalDocs ************** */
 
-
-/*!
+/*
 ===============================================================================
-    Function:   WPXA_version()
-        Returns the current version of WPXA
+Function:   WPXA_version
+    Returns the current version of WPXA
 
-    Returns:
-        current version number of the module
+Returns:
+    current version number of the module
 
-	Extra:
-		### Author
-		20110713 - hoppfrosch - Original
+Author(s):
+    20110713 - hoppfrosch - Original
 ===============================================================================
 */
 WPXA_version()
 {
-    return "0.1.9"
+    return "0.1.10"
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   wp_ClipCursor([Confine, x1, y1, x2, y2])
-        Clips (restricts/confines) the mouse to a given area
+Function:   wp_ClipCursor
+    Clips (restricts/confines) the mouse to a given area
 
-    Parameters:
-        Confine - (***Optional***) Toogle for Clipping (Default: true)
-        x1,y1,x2,y2 - (***Optional***) Bounding coordinates (upper left, lower right) of confined area (Default: 0,0,1,1)
+Parameters:
+    Confine - Toogle for Clipping
+    x1,y1,x2,y2 - Bounding coordinates (upper left, lower right) of confined area
   
-    Returns:
-        If the function succeeds, the return value is nonzero.
-        If the function fails, the return value is zero. To get extended error information, call GetLastError. 
+Returns:
+    If the function succeeds, the return value is nonzero.
+    If the function fails, the return value is zero. To get extended error information, call GetLastError. 
     
-    Extra:
-		### Author
-        Original - [x79animal](http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537)
-        20110127 - hoppfrosch - Modifications
+Author(s):
+    Original - x79animal - http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537
+    20110127 - hoppfrosch - Modifications
 ===============================================================================
 */
 wp_ClipCursor( Confine=True, x1=0 , y1=0, x2=1, y2=1 ) 
@@ -70,21 +77,20 @@ wp_ClipCursor( Confine=True, x1=0 , y1=0, x2=1, y2=1 )
     Return Confine ? DllCall( "ClipCursor", UInt,&R ) : DllCall( "ClipCursor" )
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   wp_GetMonitorAt(x, y, [default])
-        Get the index of the monitor containing the specified x and y coordinates.
+Function:   wp_GetMonitorAt
+    Get the index of the monitor containing the specified x and y coordinates.
 
-    Parameters:
-        x,y - Coordinates
-        default - (***Optional***) Default monitor (Default: 1)
+Parameters:
+    x,y - Coordinates
+    default - Default monitor
   
-    Returns:
-        Index of the monitor at specified coordinates
+Returns:
+   Index of the monitor at specified coordinates
 
-    Extra:
-		### Author
-        Original - [Lexikos](http://www.autohotkey.com/forum/topic21703.html)
+Author(s):
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_GetMonitorAt(x, y, default=1)
@@ -101,21 +107,40 @@ wp_GetMonitorAt(x, y, default=1)
     return default
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   wp_GetMonitorFromWindow(hWnd)
-        Get the index of the monitor containing the specified window.
+Function:   wp_GetMonitorFromMouse
+    Get the index of the monitor where the mouse is
 
-    Parameters:
-        hWnd - Window handle
+Parameters:
+    default - Default monitor
   
-    Returns:
-        Index of the monitor of specified window
+Returns:
+    Index of the monitor where the mouse is
 
+Author(s):
+    20120322- hoppfrosch: Initial
+===============================================================================
+*/
+wp_GetMonitorFromMouse(default=1)
+{
+    MouseGetPos,x,y 
+    return wp_GetMonitorAt(x,y,default)
+}
 
-    Extra:
-		### Author
-        Original - [ShinyWong](http://www.autohotkey.com/forum/viewtopic.php?p=462080#462080)
+/*
+===============================================================================
+Function:   wp_GetMonitorFromWindow
+    Get the index of the monitor containing the specified window.
+
+Parameters:
+    hWnd - Window handle
+  
+Returns:
+    Index of the monitor of specified window
+
+Author(s):
+    Original - ShinyWong - http://www.autohotkey.com/forum/viewtopic.php?p=462080#462080
 ===============================================================================
 */
 wp_GetMonitorFromWindow(hWnd)
@@ -159,47 +184,45 @@ wp_GetMonitorFromWindow(hWnd)
 }
 
 
-/*!
+/*
 ===============================================================================
-    Function:   wp_GetProp(hwnd, property_name [,type])
-        Get window property.
+Function:   wp_GetProp
+    Get window property.
   
-    Parameters:
-        hwnd - Window handle
-        property_name - Name of the property
-        type - (***Optional***) Type of the  property - should be int, uint or float. (Default: int)
+Parameters:
+    hwnd - Window handle
+    property_name - Name of the property
+    type - Type of the  property - should be int, uint or float.
 
-    Returns:
-        Value of the property, otherwise NULL if property does not exist
+Returns:
+    Value of the property, otherwise NULL if property does not exist
   
-    Remarks: 
-    See also:  <wp_SetProp>, <wp_RemoveProp>
+See also:  
+    <wp_SetProp>, <wp_RemoveProp>
 
-    Extra:
-		### Author
-        Original - [Lexikos](http://www.autohotkey.com/forum/topic21703.html)
-        [Reference](http://msdn.microsoft.com/en-us/library/ms633564%28v=vs.85%29.aspx)
+Author(s):
+    Original -  Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Reference - MSDN - http://msdn.microsoft.com/en-us/library/ms633564%28v=vs.85%29.aspx
 ===============================================================================
 */
 wp_GetProp(hwnd, property_name, type="int") {
     return DllCall("GetProp", "uint", hwnd, "str", property_name, type)
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   wp_IsAlwaysOnTop(WinTitle [,IsSetByWP])
-        Determine whether fiven window is set to always on top
+Function:   wp_IsAlwaysOnTop
+    Determine whether fiven window is set to always on top
 
-    Parameters:
-        WinTitle - Title of the window
-        IsSetByWP - (***Optional***) Checks whether "AlwaysOnTop" was set with WindowPadX (needed to restore state ...) (Default: 0)
+Parameters:
+    WinTitle - Title of the window
+    IsSetByWP - Checks whether "AlwaysOnTop" was set with WindowPadX (needed to restore state ...)
   
-    Returns:
-        True or False
+Returns:
+    True or False
 
-    Extra:
-		### Author
-        20110811 - hoppfrosch - Initial
+Author(s):
+    20110811 - hoppfrosch - Initial
 ===============================================================================
 */
 wp_IsAlwaysOnTop(WinTitle,IsSetByWP=0)
@@ -224,17 +247,16 @@ wp_IsAlwaysOnTop(WinTitle,IsSetByWP=0)
     return
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   wp_IsResizable()
-        Determine if we should attempt to resize the last found window.
+Function:   wp_IsResizable
+    Determine if we should attempt to resize the last found window.
 
-    Returns:
-        True or False
+Returns:
+    True or False
      
-    Extra:
-		### Author
-        Original - [Lexikos](http://www.autohotkey.com/forum/topic21703.html)
+Author(s):
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_IsResizable()
@@ -246,20 +268,22 @@ wp_IsResizable()
     return (CurrStyle & 0x40000) ; WS_SIZEBOX
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   wp_IsWhereWePutIt(hwnd, x, y, w, h)
-        Restores windows position and size previously stored with <wp_RememberPos>
+Function:   wp_IsWhereWePutIt
+    Restores windows position and size previously stored with <wp_RememberPos>
   
-    Parameters:
-        hwnd - Window handle
+Parameters:
+    hwnd - Window handle
         
-    Returns:
-        x,y,w,h -  last position and size. - or false
+Returns:
+    x,y,w,h -  last position and size
+    
+See also:
+    <wp_RememberPos>
    
-    Extra:
-        ### Author
-        Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+Author(s):
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_IsWhereWePutIt(hwnd, x, y, w, h)
@@ -278,19 +302,16 @@ wp_IsWhereWePutIt(hwnd, x, y, w, h)
 /*
 ===============================================================================
 Function:   wp_RememberPos
-  Helper function for detection of window movement by user. Stores the current position. The stored position can be recovered by <wp_IsWhereWePutIt>
+    Helper function for detection of window movement by user. Stores the current position. The stored position can be recovered by <wp_IsWhereWePutIt>
   
 Parameters:
-  hwnd - Window handle
+    hwnd - Window handle
   
 See also:
-  <wp_SetProp>, <wp_IsWhereWePutIt>
-  
-Classification: 
-  Helper function
+    <wp_SetProp>, <wp_IsWhereWePutIt>
 
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_RememberPos(hwnd)
@@ -306,24 +327,21 @@ wp_RememberPos(hwnd)
 /*
 ===============================================================================
 Function:   wp_RemoveProp
-  Remove window property.
+    Remove window property.
   
 Parameters:
-  hwnd - Window handle
-  property_name - Name of the property
+    hwnd - Window handle
+    property_name - Name of the property
 
-Return Values:
-  Handle - The return value identifies the specified data. If the data cannot be found in the specified property list, the return value is NULL.
+Returns:
+    Handle - The return value identifies the specified data. If the data cannot be found in the specified property list, the return value is NULL.
   
 See also:
-  <wp_GetProp>, <wp_SetProp>
+    <wp_GetProp>, <wp_SetProp>
   
-Classification: 
-  Helper function
-
 Author(s):
-  Original - MSDN (http://msdn.microsoft.com/en-us/library/ms633567%28v=vs.85%29.aspx)
-  20110713 - Hoppfrosch - AutoHotkey-Implementation
+    Reference - MSDN (http://msdn.microsoft.com/en-us/library/ms633567%28v=vs.85%29.aspx)
+    20110713 - hoppfrosch - AutoHotkey-Implementation
 ===============================================================================
 */
 wp_RemoveProp(hwnd, property_name) {
@@ -339,17 +357,14 @@ wp_RemoveProp(hwnd, property_name) {
 /*
 ===============================================================================
 Function:   wp_Restore
-  Restores windows to state according properties
+    Restores windows to state according properties
   
-  Following states are restored:
-  * AlwaysOnTop
-  * RolledWindow
+    Following states are restored:
+    * AlwaysOnTop
+    * RolledWindow
     
-Classification: 
-  Helper function
-
 Author(s):
-  20110713 - Hoppfrosch - AutoHotkey-Implementation
+    20110713 - hoppfrosch - AutoHotkey-Implementation
 ===============================================================================
 */
 wp_Restore() {
@@ -387,17 +402,16 @@ wp_Restore() {
     }
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   wp_RollWindow(hWnd)
-        Rolls a window up to its titlebar (windowheight is resized to height of captionbar)
+Function:   wp_RollWindow
+    Rolls a window up to its titlebar (windowheight is resized to height of captionbar)
 
-    Parameters:
-         hWnd - Window handle
-      
-    Extra:
-		### Author
-        20120116 - hoppfrosch - Original
+Parameters:
+    hWnd - Window handle
+
+Author(s):
+    20120116 - hoppfrosch - Original
 ===============================================================================
 */
 wp_RollWindow(hwnd)
@@ -426,25 +440,22 @@ wp_RollWindow(hwnd)
 /*
 ===============================================================================
 Function:   wp_SetProp
-  Set window property.
+    Set window property.
   
 Parameters:
-  hwnd - Window handle
-  property_name - Name of the property
-  data - Value of the property
-  type - Type of the  property - should be int, uint or float.
+    hwnd - Window handle
+    property_name - Name of the property
+    data - Value of the property
+    type - Type of the  property - should be int, uint or float
 
-Return Values:
-  True or False
+Returns:
+    True or False
   
 See also:
-  <wp_GetProp>, <wp_RemoveProp>
+    <wp_GetProp>, <wp_RemoveProp>
   
-Classification: 
-  Helper function
-
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_SetProp(hwnd, property_name, data, type="int") {
@@ -458,20 +469,17 @@ wp_SetProp(hwnd, property_name, data, type="int") {
 /*
 ===============================================================================
 Function:   wp_SetRestorePos
-  Stores windows position for restoring it later
+    Stores windows position for restoring it later
   
 Parameters:
-  hwnd - Window handle
-  x,y,w,h -  Next time user requests the window be "restored" use this position and size.
+    hwnd - Window handle
+    x,y,w,h -  Next time user requests the window be "restored" use this position and size.
   
 See also:
-  <wp_SetProp>
+    <wp_SetProp>
   
-Classification: 
-  Helper function
-
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_SetRestorePos(hwnd, x, y, w, h)
@@ -484,17 +492,16 @@ wp_SetRestorePos(hwnd, x, y, w, h)
     wp_SetProp(hwnd,"wpRestoreH",h)
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   wp_UnRollWindow(hWnd)
-        Unrolls a previously rolled window
+Function:   wp_UnRollWindow
+    Unrolls a previously rolled window
 
-    Parameters:
-         hWnd - Window handle
+Parameters:
+    hWnd - Window handle
       
-    Extra:
-		### Author
-        20120116 - hoppfrosch - Original
+Author(s):
+    20120116 - hoppfrosch - Original
 ===============================================================================
 */
 wp_UnRollWindow(hwnd)
@@ -517,19 +524,16 @@ wp_UnRollWindow(hwnd)
 /*
 ===============================================================================
 Function:   wp_WinExist
-  Custom WinExist() for implementing a couple extra "special" values.
+    Custom WinExist() for implementing a couple extra "special" values.
   
 Parameters:
-  WinTitle - Title of the window
+    WinTitle - Title of the window
 
-Return Values:
-  Windowshandle
-   
-Classification: 
-  Helper function
+Returns:
+    Windowshandle
 
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_WinExist(WinTitle)
@@ -549,19 +553,16 @@ wp_WinExist(WinTitle)
 /*
 ===============================================================================
 Function:   wp_WinGetTitle
-  Custom WinGetTitle() for getting either title of "last found" window or window given by title
+    Custom WinGetTitle() for getting either title of "last found" window or window given by title
   
 Parameters:
-  WinTitle - Title of the window
+    WinTitle - Title of the window
 
-Return Values:
-  WinTitle - Title of the window
+Returns:
+    WinTitle - Title of the window
    
-Classification: 
-  Helper function
-
 Author(s):
-  20110607 - hoppfrosch - Original
+    20110607 - hoppfrosch - Original
 ===============================================================================
 */
 wp_WinGetTitle(WinTitle)
@@ -577,16 +578,13 @@ wp_WinGetTitle(WinTitle)
 /*
 ===============================================================================
 Function:   wp_WinLastMinimized
-  Get most recently minimized window.
+    Get most recently minimized window.
   
-Return Values:
-  True or false
-
-Classification: 
-  Helper function
+Returns:
+    True or false
 
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_WinLastMinimized()
@@ -610,16 +608,13 @@ wp_WinLastMinimized()
 /*
 ===============================================================================
 Function:   wp_WinPreviouslyActive
-  Get next window beneath the active one in the z-order.
+    Get next window beneath the active one in the z-order.
   
-Return Values:
-  Windowshandle
+Returns:
+    Windowshandle
    
-Classification: 
-  Helper function
-
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 wp_WinPreviouslyActive()
@@ -649,16 +644,13 @@ wp_WinPreviouslyActive()
 /*
 ===============================================================================
 Function:   WPXA_ClipCursorToMonitor
-  Clips (Restricts) mouse to given monitor
+    Clips (Restricts) mouse to given monitor
 
 Parameters:
-  md - monitor-id
+    md - monitor-id
   
-Classification: 
-  WindowPadX-Action
-
 Author(s):
-  20110126 - hoppfrosch - Initial
+    20110126 - hoppfrosch - Initial
 ===============================================================================
 */
 WPXA_ClipCursorToMonitor(md)
@@ -688,16 +680,10 @@ WPXA_ClipCursorToMonitor(md)
 /*
 ===============================================================================
 Function:   WPXA_ClipCursorToCurrentMonitorToggle
-  Toogles clipping mouse to current monitor
-
-Parameters:
-  None 
-  
-Classification: 
-  WindowPadX-Action
+    Toogles clipping mouse to current monitor
 
 Author(s):
-  20110126 - hoppfrosch - Initial
+    20110126 - hoppfrosch - Initial
 ===============================================================================
 */
 WPXA_ClipCursorToCurrentMonitorToggle()
@@ -734,16 +720,13 @@ WPXA_ClipCursorToCurrentMonitorToggle()
 /*
 ===============================================================================
 Function:   WPXA_FillVirtualScreen
-  Expand the window to fill the virtual screen (all monitors).
+    Expand the window to fill the virtual screen (all monitors).
 
 Parameters:
-  winTitle - windows title
+    winTitle - windows title
   
-Classification: 
-  WindowPadX-Action
-
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 WPXA_FillVirtualScreen(winTitle)
@@ -767,16 +750,13 @@ WPXA_FillVirtualScreen(winTitle)
 /*
 ===============================================================================
 Function:   WPXA_GatherWindowsOnMonitor
-  "Gather" windows on a specific screen.
+    "Gather" windows on a specific screen.
 
 Parameters:
-  md - monitor id
+    md - monitor id
   
-Classification: 
-  WindowPadX-Action
-
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 WPXA_GatherWindowsOnMonitor(md)
@@ -883,16 +863,13 @@ WPXA_GatherWindowsOnMonitor(md)
 /*
 ===============================================================================
 Function:   WPXA_MaximizeToggle
-  Maximize or restore the window.
+    Maximize or restore the window.
 
 Parameters:
-  winTitle - windows title
+    winTitle - windows title
   
-Classification: 
-  WindowPadX-Action
-
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 WPXA_MaximizeToggle(winTitle)
@@ -919,20 +896,22 @@ WPXA_MaximizeToggle(winTitle)
 /*
 ===============================================================================
 Function:   WPXA_MinimizeWindowsOnMonitor
-  Minimize all windows on the given Screen
+    Minimize all windows on the given Screen or all windows on screen where where the mouse currently lives
 
 Parameters:
-  md - monitor-id
-  
-Classification: 
-  WindowPadX-Action
-  
+    md - monitor-id, if 0 determine monitor from mouse pos
+   
 Author(s):
-  20110125 - hoppfrosch - Initial
+        20110125 - hoppfrosch - Initial
+        20120322 - hoppfrosch - minimize windows on screen where mouse is (md = 0)
 ===============================================================================
 */
 WPXA_MinimizeWindowsOnMonitor(md)
 {
+    ; If md=0: determine monitor from mouse ...
+    if (md=0) {
+        md := wp_GetMonitorFromMouse()
+    }
     SysGet, mc, MonitorCount
     if (md<1 or md>mc)
         return
@@ -958,17 +937,14 @@ WPXA_MinimizeWindowsOnMonitor(md)
 /*
 ===============================================================================
 Function:   WPXA_Move
-  move and resize window based on a "pad" concept.
+    move and resize window based on a "pad" concept.
 
 Parameters:
-  sideX, sideY, widthFactor, heightFactor - **TODO**
-  winTitle - windows title ("A" - Active Window, "P" - Previous Window)
+    sideX, sideY, widthFactor, heightFactor - **TODO**
+    winTitle - windows title ("A" - Active Window, "P" - Previous Window)
   
-Classification: 
-  WindowPadX-Action
-
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 WPXA_Move(sideX, sideY, widthFactor, heightFactor, winTitle)
@@ -1135,16 +1111,13 @@ wp_CalcMonitorStats:
 /*
 ===============================================================================
 Function:   WPXA_MoveMouseToMonitor
-  Moves mouse to center of given monitor
+    Moves mouse to center of given monitor
 
 Parameters:
-  md - monitor-id
-  
-Classification: 
-  WindowPadX-Action
+    md - monitor-id
 
 Author(s):
-  20110125 - hoppfrosch - Initial
+    20110125 - hoppfrosch - Initial
 ===============================================================================
 */
 WPXA_MoveMouseToMonitor(md)
@@ -1173,17 +1146,14 @@ WPXA_MoveMouseToMonitor(md)
 /*
 ===============================================================================
 Function:   WPXA_MoveWindowToMonitor
-  Move window between screens, preserving relative position and size.
+    Move window between screens, preserving relative position and size.
 
 Parameters:
-  md - Monitor id
-  winTitle - windows title
-  
-Classification: 
-  WindowPadX-Action
+    md - Monitor id
+    winTitle - windows title
 
 Author(s):
-  Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
+    Original - Lexikos - http://www.autohotkey.com/forum/topic21703.html
 ===============================================================================
 */
 WPXA_MoveWindowToMonitor(md, winTitle)
@@ -1243,17 +1213,14 @@ WPXA_MoveWindowToMonitor(md, winTitle)
 /*
 ===============================================================================
 Function:   WPXA_MouseLocator
-  Easy find the mouse
+    Easy find the mouse
 
 Requirements:
-  Windings-Font 
-  
-Classification: 
-  General Tool
+    Windings-Font 
 
 Author(s):
- Original - Skrommel - http://www.donationcoder.com/Software/Skrommel/MouseMark/MouseMark.ahk
- 20110127 - hoppfrosch - Modifications
+    Original - Skrommel - http://www.donationcoder.com/Software/Skrommel/MouseMark/MouseMark.ahk
+    20110127 - hoppfrosch - Modifications
 ===============================================================================
 */
 WPXA_MouseLocator()
@@ -1318,17 +1285,16 @@ WPXA_MouseLocator()
     }
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   WPXA_RollToggle(WinTitle)
-        Toogles "Roll/Unroll" for given window
+Function:   WPXA_RollToggle
+    Toogles "Roll/Unroll" for given window
 
-    Parameters:
-        WinTitle - Title of the window
+Parameters:
+    WinTitle - Title of the window
       
-    Extra:
-		### Author
-        20120116 - hoppfrosch - Original
+Author(s):
+    20120116 - hoppfrosch - Original
 ===============================================================================
 */
 WPXA_RollToggle(WinTitle) {
@@ -1407,17 +1373,13 @@ WPXA_ShadeToggle(WinTitle)
     return
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   WPXA_TileLast2Windows()
-        Tile active and last window
+Function:   WPXA_TileLast2Windows
+    Tile active and last window
       
-    Extra:
-		### Author
-        20120316 - ipstone today - Initial (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482)
-        
-    Example:
-       #NumpadSub = WPXA_TileLast2Windows
+Author(s):
+    20120316 - ipstone today - Initial (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482)
 ===============================================================================
 */
 WPXA_TileLast2Windows() {
@@ -1436,17 +1398,16 @@ WPXA_TileLast2Windows() {
     } 
 }
 
-/*!
+/*
 ===============================================================================
-    Function:   WPXA_TopToggle(WinTitle)
-        Toogles "Always On Top" for given window
+Function:   WPXA_TopToggle
+    Toogles "Always On Top" for given window
 
-    Parameters:
-        WinTitle - Title of the window
+Parameters:
+    WinTitle - Title of the window
       
-    Extra:
-		### Author
-        20110811 - hoppfrosch - Initial
+Author(s):
+    20110811 - hoppfrosch - Initial
 ===============================================================================
 */
 WPXA_TopToggle(WinTitle) {
