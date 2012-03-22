@@ -1,6 +1,8 @@
 WindowPadX
 ==========
 
+Detailed Documentation can be found here: http://hoppfrosch.github.com/WindowPadX
+
 Introduction
 ------------
 
