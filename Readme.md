@@ -1,7 +1,7 @@
 WindowPadX
 ==========
 
-Detailed Documentation can be found here: http://hoppfrosch.github.com/WindowPadX
+Detailed Documentation can be found here: http://hoppfrosch.github.com/WindowPadX/files/WindowPadX-ahk.html
 
 Introduction
 ------------
@@ -33,4 +33,4 @@ Features
       - General
           - WPXA_MouseLocator: Easy find the mouse 
 
-- ***ToDo: Describe additional features here ...****
+For more details see http://hoppfrosch.github.com/WindowPadX/files/WindowPadX-ahk.html
