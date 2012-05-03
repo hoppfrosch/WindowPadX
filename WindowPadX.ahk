@@ -5,8 +5,11 @@ Title: WindowPadX
     
 derived from *WindowPad* by *Lexikos* (http://www.autohotkey.com/forum/topic21703.html)
 
-For initial documentation (configuration etc.) see the documentation of original *WindowPad* by *Lexikos* (http://www.autohotkey.com/forum/topic21703.html), as *WindowPadX* 
-        is just a simple clone of *WindowPad* with reengineering and a few enhancements ....
+See also the documentation of original *WindowPad* by *Lexikos* (http://www.autohotkey.com/forum/topic21703.html), as *WindowPadX* is just a simple clone of *WindowPad* with reengineering and a few enhancements ....
+
+Documentation:
+- <Command-line Usage> - Using *WindowPadX* from the commandline
+- <Adding Commands> - Implement your own commands
     
 Requires:
     AutoHotkey v1.1.0 or later.
