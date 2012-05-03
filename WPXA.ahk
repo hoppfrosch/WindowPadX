@@ -3,10 +3,6 @@
 		Implementation of different useful actions for handling windows in general and within a multi-monitor setup in special. 
         
         Functions starting with the prefix *WPXA* are designed to be used as user-actions within *WindowPadX*,  whereas functions starting with the prefix *wp* are internal helper functions.
-        
-        For initial documentation (configuration etc.) see the documentation of original *WindowPad* by *Lexikos* (http://www.autohotkey.com/forum/topic21703.html), as *WindowPadX* 
-        is just a simple clone of *WindowPad* with reengineering and a few enhancements ....
-        
 
 	Author: 
         hoppfrosch
@@ -1319,58 +1315,6 @@ WPXA_RollToggle(WinTitle) {
             wp_RollWindow(hwnd)
         }
     }
-}
-
-WPXA_ShadeToggle(WinTitle)
-{
-    applicationname := A_ScriptName
-    
-    if hwnd := wp_WinExist(WinTitle)
-    {
-    }
-    
-/*
-    WinGet, ws_ID, ID, A
-    Loop, Parse, ws_IDList, |
-    {
-       IfEqual, A_LoopField, %ws_ID%
-       {
-          ; Match found, so this window should be restored (unrolled):
-          StringTrimRight, ws_Height, ws_Window%ws_ID%, 0
-            if ws_Animate = 1
-            {
-                ws_RollHeight = %ws_MinHeight%
-                Loop
-                {
-                    If ws_RollHeight >= %ws_Height%
-                        Break
-                    ws_RollHeight += %ws_RollUpSmoothness%
-                    WinMove, ahk_id %ws_ID%,,,,, %ws_RollHeight%
-                }
-            }
-           WinMove, ahk_id %ws_ID%,,,,, %ws_Height%
-          StringReplace, ws_IDList, ws_IDList, |%ws_ID%
-          return
-       }
-    }
-    WinGetPos,,,, ws_Height, A
-    ws_Window%ws_ID% = %ws_Height%
-    ws_IDList = %ws_IDList%|%ws_ID%
-    ws_RollHeight = %ws_Height%
-    if ws_Animate = 1
-    {
-        Loop
-        {
-            If ws_RollHeight <= %ws_MinHeight%
-                Break
-            ws_RollHeight -= %ws_RollUpSmoothness%
-            WinMove, ahk_id %ws_ID%,,,,, %ws_RollHeight%
-        }
-    }
-    WinMove, ahk_id %ws_ID%,,,,, %ws_MinHeight%
-    return
-*/
-    return
 }
 
 /*
