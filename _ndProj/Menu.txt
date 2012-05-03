@@ -46,6 +46,8 @@ Format: 1.52
 # --------------------------------------------------------------------------
 
 
+File: Adding Commands  (Doc-Adding_Commands.txt)
+File: Command-line Usage  (Doc-Commandline_Usage.txt)
 File: WindowPadX  (WindowPadX.ahk)
 File: WindowPadX-Actions library  (WPXA.ahk)
 
