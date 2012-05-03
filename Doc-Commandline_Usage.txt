@@ -1,0 +1,7 @@
+About: Command-line Usage
+
+*WindowPadX* supports a command-line mode. Simply pass one or more commands from the command-line and *WindowPadX* will execute them and then exit. If a command's parameters contain spaces, the command and its arguments must be enclosed in quotation marks. For example
+
+> WindowPadX.exe GatherWindows,1 "WindowScreenMove, Next, My Window"
+
+Available commands are described within <WindowPadX-Actions library>. 

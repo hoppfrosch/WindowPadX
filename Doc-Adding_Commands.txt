@@ -1,0 +1,14 @@
+About: Adding Commands
+
+Additional commands for use in *WindowPadX.ini* may be implemented by simply adding subroutines or functions to *WPXA.ahk*. For instance, a Close command could be implemented by adding either of the following
+    
+>WPXA_Close(winTitle) {
+>    if wp_WinExist(winTitle)
+>        WinClose
+>}
+
+It would then be used like any other *WindowPadX* command from <<WindowPadX-Actions library>, by adding something like this to WindowPadX.ini
+
+>!4 = WPXA_Close, A
+
+Note that *AutoHotkey* is required to run *WindowPadX.ahk* after making changes. To get an executable version of *WindowPadX* you might want to use *Ahk2Exe* 
