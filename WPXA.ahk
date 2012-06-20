@@ -11,13 +11,18 @@
         WTFPL (http://sam.zoy.org/wtfpl/)
 	
     Credits: 
-		Lexikos - for his great work and his Original *"WindowPad - multi-monitor window-moving tool" * (http://www.autohotkey.com/forum/topic21703.html)
-		ShinyWong - for his "GetMonitorIndexFromWindow" function (http://www.autohotkey.com/forum/viewtopic.php?p=462080#462080) - used in <wp_GetMonitorFromWindow>
-		Skrommel - for his "MouseMark" function (http://www.donationcoder.com/Software/Skrommel/MouseMark/MouseMark.ahk) - used in <WPXA_MouseLocator>
-		x97animal - for his "clipCursor" Function (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537) - used in <wp_ClipCursor>
+		Lexikos - for his great work and his Original *WindowPad - multi-monitor window-moving tool* (http://www.autohotkey.com/forum/topic21703.html)
+		ShinyWong - for his *GetMonitorIndexFromWindow* function (http://www.autohotkey.com/forum/viewtopic.php?p=462080#462080) - used in <wp_GetMonitorFromWindow>
+		Skrommel - for his *MouseMark* function (http://www.donationcoder.com/Software/Skrommel/MouseMark/MouseMark.ahk) - used in <WPXA_MouseLocator>
+		x97animal - for his *clipCursor* Function (http://www.autohotkey.com/forum/viewtopic.php?p=409537#409537) - used in <wp_ClipCursor>
         ipstone today - for his initial implementation (http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482) for <WPXA_TileLast2Windows>
+        Sean - for his *WinTrayMin* functionality (http://http://www.autohotkey.com/community/viewtopic.php?f=2&t=33263) - used in <wp_WinTrayMin> 
+        gwarble - for his great *Notify* function (http://www.autohotkey.com/community/viewtopic.php?f=2&t=48668)
 		
 	Changelog:
+        0.1.12 - [*] Internal Changes: Update to Notify 0.499 (http://www.autohotkey.com/community/viewtopic.php?f=2&t=48668), Introduced Global variables for easier configuration ...
+        0.1.11 - [+] <wp_WinTraymin> : Minimize a window to a tray icon (see: http://http://www.autohotkey.com/community/viewtopic.php?f=2&t=33263 - thanks to Sean)
+                 {+] <WPXA_TrayMinWindow>: Mininmize a window to a tray icon (see <wp_TrayMin>)
         0.1.10 - [+] <wp_GetMonitorFromMouse>: Determines monitor from current mouseposition.
                  [*] <WPXA_MinimizeWindowsOnMonitor>: added minimization of all windows on screen where mouse is.
         0.1.9 - [+] <WPXA_TileLast2Windows>: Tile active and last window (see: http://www.autohotkey.com/forum/viewtopic.php?p=521482#521482 - thanks to ipstone today). 
@@ -31,6 +36,15 @@
 */
 
 ; ****** HINT: Documentation can be extracted to HTML using NaturalDocs ************** */
+
+; Global Varibles
+Version := "0.1.12"
+
+NotifyOptions := "GC=303030 TC=FFFFFF TS=8 TF=Verdana MC=FFFFFF MF=Verdana SI=200 ST=200 SC=200 BK=White IW=16 IH=16 Image=" 
+NotifyDuration := 3
+Ico_Dir := A_ScriptDir "/icons"
+Ico_Minus := Ico_Dir "/minus.png"
+Ico_Plus := Ico_Dir "/plus.png"
 
 /*
 ===============================================================================
@@ -46,7 +60,9 @@ Author(s):
 */
 WPXA_version()
 {
-    return "0.1.10"
+    Global Version
+    
+    return Version
 }
 
 /*
@@ -639,6 +655,67 @@ wp_WinPreviouslyActive()
 
 /*
 ===============================================================================
+Function:   wp_WinTraymin
+    Minimizes a window to a tray icon.
+  
+Parameters:
+    hWnd - Windows-Handle
+    nFlags - Flag to allow manipulate properites:
+        wp_WinTraymin(hWnd,0), where 0 can be omitted.
+        Removing all trayminned trayicons:	wp_WinTraymin(0,-1).
+        Other values than 0 & -1 are reserved for internal use.
+   
+Author(s):
+    Original - Sean - http://http://www.autohotkey.com/community/viewtopic.php?f=2&t=33263
+===============================================================================
+*/
+wp_WinTraymin(hWnd = "", nFlags = "")
+{
+	Static
+	If Not	hAHK&&hAHK:=WinExist("ahk_class AutoHotkey ahk_pid " DllCall("GetCurrentProcessId"))
+		ShellHook:=DllCall("RegisterWindowMessage","Str","SHELLHOOK"), nIcons:=0
+	,	DllCall("RegisterShellHookWindow","Uint",hAHK)
+	,	OnMessage(nMsg:=1028,"WM_SHELLHOOKMESSAGE")
+	If Not	nFlags
+	{
+		If Not	((hWnd+=0)||hWnd:=DllCall("GetForegroundWindow"))||((h:=DllCall("GetWindow","Uint",hWnd,"Uint",4))&&DllCall("IsWindowVisible","Uint",h)&&!hWnd:=h)||
+            !(VarSetCapacity(sClass,32),DllCall("GetClassName","Uint",hWnd,"Str",sClass,"Uint",VarSetCapacity(sClass)//2))||sClass=="Shell_TrayWnd"||sClass=="Progman" 
+        {
+            Return
+        }
+		OnMessage(ShellHook,"")
+		WinMinimize,	ahk_id %hWnd%
+		WinHide,	ahk_id %hWnd%
+		Sleep,	100
+		OnMessage(ShellHook,"WM_SHELLHOOKMESSAGE")
+		uID:=uID_%hWnd%, uID ? "" : (uID_%hWnd%:=uID:=++nIcons=nMsg ? ++nIcons : nIcons)
+		SendMessage, 0x7F, 2, 0,, ahk_id %hWnd%
+		If Not	hIcon:=ErrorLevel
+        {
+			hIcon:=DllCall("GetClassLong","Uint",hWnd,"Int",-34)
+        }
+		DllCall("GetWindowTextA","Uint",hWnd,"Uint",NumPut(hIcon,NumPut(nMsg,NumPut(1|2|4,NumPut(uID,NumPut(hAHK,NumPut(VarSetCapacity(ni,152),ni)))))),"int",128)
+		Return	hWnd_%uID%:=DllCall("shell32\Shell_NotifyIcon","Uint",hWnd_%uID% ? 1 : 0,"Uint",&ni) ? hWnd : DllCall("ShowWindow","Uint",hWnd,"int",5)*0, DllCall("DestroyIcon","Uint",hIcon)
+	}
+	Else If	nFlags > 0
+	{
+		If	(nFlags=3&&uID:=hWnd)
+			If	WinExist("ahk_id " . hWnd:=hWnd_%uID%)
+			{
+				WinShow,	ahk_id %hWnd%
+				WinRestore,	ahk_id %hWnd%
+			}
+			Else	nFlags:=2
+		Else	uID:=uID_%hWnd%
+		Return	uID&&hWnd_%uID% ? (DllCall("shell32\Shell_NotifyIcon","Uint",2,"Uint",NumPut(uID,NumPut(hAHK,NumPut(VarSetCapacity(ni,152),ni)))-12),hWnd_%uID%:="") : ""
+	}
+	Else
+		Loop, % nIcons+0*DllCall("DeregisterShellHookWindow","Uint",hAHK)
+			hWnd_%A_Index% ? (DllCall("shell32\Shell_NotifyIcon","Uint",2,"Uint",NumPut(A_Index,NumPut(hAHK,NumPut(VarSetCapacity(ni,152),ni)))-12),DllCall("ShowWindow","Uint",hWnd_%A_Index%,"int",5),hWnd_%A_Index%:="") : ""
+}
+
+/*
+===============================================================================
 Function:   WPXA_ClipCursorToMonitor
     Clips (Restricts) mouse to given monitor
 
@@ -711,7 +788,6 @@ WPXA_ClipCursorToCurrentMonitorToggle()
         IsLocked := True
     }
 }
-
 
 /*
 ===============================================================================
@@ -1295,6 +1371,8 @@ Author(s):
 */
 WPXA_RollToggle(WinTitle) {
     
+    Global NotifyOptions, NotifyDuration, Ico_Minus, Ico_Plus
+    
     if hwnd := wp_WinExist(WinTitle)
     {
         _DBG_FName := A_ScriptName "-[WPXA_RollToggle] - "   ; _DBG_
@@ -1305,13 +1383,13 @@ WPXA_RollToggle(WinTitle) {
         if (wp_GetProp(hwnd,"wpRolledUp") = 1)
         {
             OutputDebug % _DBG_FName "RollWindow disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-            Notify(A_ScriptName,CurrWinTitle "`nRollWindow disabled - " hwnd,2,,"icons/minus.png")
+            Notify(A_ScriptName,CurrWinTitle "`nRollWindow disabled - " hwnd, NotifyDuration, NotifyOptions Ico_Minus)
             wp_UnRollWindow(hwnd)
         }
         else
         {
             OutputDebug % _DBG_FName "RollWindow enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-            Notify(A_ScriptName,CurrWinTitle "`nRollWindow enabled - " hwnd,2,,A_ScriptDir "/icons/plus.png")
+            Notify(A_ScriptName,CurrWinTitle "`nRollWindow enabled - " hwnd, NotifyDuration, NotifyOptions Ico_Plus)
             wp_RollWindow(hwnd)
         }
     }
@@ -1356,6 +1434,8 @@ Author(s):
 */
 WPXA_TopToggle(WinTitle) {
     
+    Global NotifyOptions, NotifyDuration, Ico_Minus, Ico_Plus
+    
     if hwnd := wp_WinExist(WinTitle)
     {
         WinSet, AlwaysOnTop, toggle
@@ -1368,16 +1448,53 @@ WPXA_TopToggle(WinTitle) {
         if (wp_IsAlwaysOnTop(WinTitle))
         {
             OutputDebug % _DBG_FName "AlwaysOnTop enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop enabled - " hwnd,2,,A_ScriptDir "/icons/plus.png")
+            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop enabled - " hwnd, NotifyDuration, NotifyOptions Ico_Minus)
+            MsgBox, NotifyOptions 
             wp_SetProp(hwnd,"wpAlwaysOnTop",1)
         }
         else
         {
             OutputDebug % _DBG_FName "AlwaysOnTop disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop disabled - " hwnd,2,,"icons/minus.png")
+            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop disabled - " hwnd, NotifyDuration, NotifyOptions Ico_Plus)
             wp_RemoveProp(hwnd,"wpAlwaysOnTop")
         }
     }
+}
+
+/*
+===============================================================================
+Function:   WPXA_TrayMinWindow
+    Minimizes a window to a tray icon.
+
+Parameters:
+    WinTitle - Title of the window
+      
+Author(s):
+    20120509 - hoppfrosch - Initial
+===============================================================================
+*/
+WPXA_TrayMinWindow(WinTitle) {
+    
+    if hwnd := wp_WinExist(WinTitle)
+    {
+        wp_WinTraymin(hwnd)
+    }
+}
+
+
+WM_SHELLHOOKMESSAGE(wParam, lParam, nMsg)
+{
+	Critical
+	If	nMsg=1028
+	{
+		If	wParam=1028
+			Return
+		Else If	(lParam=0x201||lParam=0x205||lParam=0x207)
+			wp_WinTraymin(wParam,3)
+	}
+	Else If	(wParam=1||wParam=2)
+		wp_WinTraymin(lParam,wParam)
+	Return	0
 }
 
 #include %A_ScriptDir%\_inc\Notify.ahk
