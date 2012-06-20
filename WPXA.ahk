@@ -20,6 +20,10 @@
         gwarble - for his great *Notify* function (http://www.autohotkey.com/community/viewtopic.php?f=2&t=48668)
 		
 	Changelog:
+        0.2.0 - [-] Removed <wp_RollWindow>
+                [-] Removed <wp_UnrollWindow>
+                [+] <wp_RollWindowToggle>: Toggles Roll/Unroll State of window. (Corrected behaviour after manually resizing a previously rolled window)
+                [*] Adapted <WPXA_RollToggle> to use wp_RollWindowToggle
         0.1.12 - [*] Internal Changes: Update to Notify 0.499 (http://www.autohotkey.com/community/viewtopic.php?f=2&t=48668), Introduced Global variables for easier configuration ...
         0.1.11 - [+] <wp_WinTraymin> : Minimize a window to a tray icon (see: http://http://www.autohotkey.com/community/viewtopic.php?f=2&t=33263 - thanks to Sean)
                  {+] <WPXA_TrayMinWindow>: Mininmize a window to a tray icon (see <wp_TrayMin>)
@@ -38,7 +42,7 @@
 ; ****** HINT: Documentation can be extracted to HTML using NaturalDocs ************** */
 
 ; Global Varibles
-Version := "0.1.12"
+Version := "0.2.0"
 
 NotifyOptions := "GC=303030 TC=FFFFFF TS=8 TF=Verdana MC=FFFFFF MF=Verdana SI=200 ST=200 SC=200 BK=White IW=16 IH=16 Image=" 
 NotifyDuration := 3
@@ -50,6 +54,8 @@ Ico_Plus := Ico_Dir "/plus.png"
 ===============================================================================
 Function:   WPXA_version
     Returns the current version of WPXA
+    
+    Versioning scheme according to http://semver.org
 
 Returns:
     current version number of the module
@@ -407,7 +413,7 @@ wp_Restore() {
         else if (wp_GetProp(hwnd,"wpRolledUp") = 1)
         {
             OutputDebug % _DBG_FName "RollWindow disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-            wp_UnRollWindow(hwnd)
+            wp_RollWindowToggle(hwnd)
         }
         
         
@@ -416,37 +422,59 @@ wp_Restore() {
 
 /*
 ===============================================================================
-Function:   wp_RollWindow
-    Rolls a window up to its titlebar (windowheight is resized to height of captionbar)
+Function:   wp_RollWindowToggle
+    Toggles Rollup of a window (Rollup to caption bar)
 
 Parameters:
     hWnd - Window handle
-
+      
 Author(s):
-    20120116 - hoppfrosch - Original
+    20120620 - hoppfrosch - Original
 ===============================================================================
 */
-wp_RollWindow(hwnd)
+wp_RollWindowToggle(hwnd)
 {
-     _DBG_FName := A_ScriptName "-[wp_RollWindow] - "   ; _DBG_
+    _DBG_FName := A_ScriptName "-[wp_RollWindowToggle] - "   ; _DBG_
     WinGetClass, WinClass, ahk_id %hwnd%    ; _DBG_
     WinGetTitle, WinTitle, ahk_id %hwnd%    ; _DBG_
-        
-    ; Determine the height of caption 
-    SysGet, CaptionHeight, 4
+    
+    ; Determine the minmal height of a window
+    SysGet, MinWinHeight, 29
     ; Get size of current window
     WinGetPos, x, y, width, height, ahk_id %hwnd%
+    OutputDebug % _DBG_FName "MinWinHeight: " MinWinHeight " - win_height: " height " - wpRolledUp: " wp_GetProp(hwnd,"wpRolledUp") ; _DBG_
     
-    if (wp_GetProp(hwnd,"wpRolledUp") = 0) 
+    if (wp_GetProp(hwnd,"wpRolledUp") = 1)
     {
-        if (height > CaptionHeight)
+        if (height = MinWinHeight)
         {
+            ; The window is still rolled up
+            heightUnrolled := wp_GetProp(hwnd,"wpUnrolledHeight")
+            WinMove, ahk_id %hwnd%, , , , ,%heightUnrolled%
+            wp_SetProp(hwnd,"wpRolledUp", 0)
+            wp_RemoveProp(hwnd,"wpUnrolledHeight")
+            OutputDebug % _DBG_FName "RollWindow disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+        }
+        else 
+        {
+            ; the previously rolled-up window was unrolled manually - so rollup it again
             wp_SetProp(hwnd,"wpRolledUp",1)
             wp_SetProp(hwnd,"wpUnrolledHeight",height)
-            WinMove, ahk_id %hwnd%, , , , ,%CaptionHeight%
+            WinMove, ahk_id %hwnd%, , , , ,%MinWinHeight%
             OutputDebug % _DBG_FName "RollWindow enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
         }
     }
+    else
+    {
+        if (height > MinWinHeight)
+        {
+            wp_SetProp(hwnd,"wpRolledUp",1)
+            wp_SetProp(hwnd,"wpUnrolledHeight",height)
+            WinMove, ahk_id %hwnd%, , , , ,%MinWinHeight%
+            OutputDebug % _DBG_FName "RollWindow enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
+        }
+    }
+    return wp_GetProp(hwnd,"wpRolledUp")
 }
 
 /*
@@ -502,35 +530,6 @@ wp_SetRestorePos(hwnd, x, y, w, h)
     wp_SetProp(hwnd,"wpRestoreY",y)
     wp_SetProp(hwnd,"wpRestoreW",w)
     wp_SetProp(hwnd,"wpRestoreH",h)
-}
-
-/*
-===============================================================================
-Function:   wp_UnRollWindow
-    Unrolls a previously rolled window
-
-Parameters:
-    hWnd - Window handle
-      
-Author(s):
-    20120116 - hoppfrosch - Original
-===============================================================================
-*/
-wp_UnRollWindow(hwnd)
-{
-    _DBG_FName := A_ScriptName "-[wp_UnRollWindow] - "   ; _DBG_
-    WinGetClass, WinClass, ahk_id %hwnd%    ; _DBG_
-    WinGetTitle, WinTitle, ahk_id %hwnd%    ; _DBG_
-    
-    if (wp_GetProp(hwnd,"wpRolledUp") = 1)
-    {
-        height := wp_GetProp(hwnd,"wpUnrolledHeight")
-        WinMove, ahk_id %hwnd%, , , , ,%height%
-        wp_SetProp(hwnd,"wpRolledUp", 0)
-        wp_RemoveProp(hwnd,"wpUnrolledHeight")
-        OutputDebug % _DBG_FName "RollWindow disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-    }
-    
 }
 
 /*
@@ -1380,17 +1379,14 @@ WPXA_RollToggle(WinTitle) {
         WinGetTitle, WinTitle, ahk_id %hwnd%    ; _DBG_
         
         CurrWinTitle := wp_WinGetTitle(WinTitle)
-        if (wp_GetProp(hwnd,"wpRolledUp") = 1)
+        wp_RollWindowToggle(hwnd)
+        if (wp_GetProp(hwnd,"wpRolledUp") = 0)
         {
-            OutputDebug % _DBG_FName "RollWindow disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
             Notify(A_ScriptName,CurrWinTitle "`nRollWindow disabled - " hwnd, NotifyDuration, NotifyOptions Ico_Minus)
-            wp_UnRollWindow(hwnd)
         }
         else
         {
-            OutputDebug % _DBG_FName "RollWindow enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
             Notify(A_ScriptName,CurrWinTitle "`nRollWindow enabled - " hwnd, NotifyDuration, NotifyOptions Ico_Plus)
-            wp_RollWindow(hwnd)
         }
     }
 }
