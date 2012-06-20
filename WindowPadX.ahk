@@ -1,5 +1,5 @@
 /*
-Title: WindowPadX
+Title: _WindowPadX
 
 *Handling windows in general and within a multi-monitor setup in special*
     
@@ -18,6 +18,8 @@ Author:
     hoppfrosch
  
 Version History:
+    1.2.2 - 22.Mar.2012 Hoppfrosch
+        [+] WPXA.ahk v0.2.0: <wp_RollWindowToggle>: Bugfix for rolling up windows to its titlebar
     1.2.1 - 22.Mar.2012 Hoppfrosch
         [+] WPXA.ahk v0.1.10: <wp_GetMonitorFromMouse>: Determine monitor where mouse is
         [*] WPXA.ahk v0.1.10: <WPXA_MinimizeWindowsOnMonitor>: Minimize windows on screen where mouse is
@@ -52,7 +54,7 @@ Ideensammlung:
 
 #SingleInstance force
 
-Version := "1.2.1"
+Version := "1.2.2"
 
 if 0 > 0
 {
