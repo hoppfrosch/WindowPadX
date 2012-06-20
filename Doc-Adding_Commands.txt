@@ -7,7 +7,7 @@ Additional commands for use in *WindowPadX.ini* may be implemented by simply add
 >        WinClose
 >}
 
-It would then be used like any other *WindowPadX* command from <<WindowPadX-Actions library>, by adding something like this to WindowPadX.ini
+It would then be used like any other *WindowPadX* command from <WindowPadX-Actions library>, by adding something like this to WindowPadX.ini
 
 >!4 = WPXA_Close, A
 

@@ -4,4 +4,6 @@ About: Command-line Usage
 
 > WindowPadX.exe GatherWindows,1 "WindowScreenMove, Next, My Window"
 
-Available commands are described within <WindowPadX-Actions library>. 
+Available commands are described within <WindowPadX-Actions library>.
+
+*Hint*: To get an executable version of *WindowPadX* you might want to use *Ahk2Exe*  
