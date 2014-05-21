@@ -20,7 +20,7 @@
         gwarble - for his great *Notify* function (http://www.autohotkey.com/community/viewtopic.php?f=2&t=48668)
 		
 	Changelog:
-        0.2.0 - [-] Removed <wp_RollWindow>
+        0.2.0 - [-] Removed <wp_RollWindow> 
                 [-] Removed <wp_UnrollWindow>
                 [+] <wp_RollWindowToggle>: Toggles Roll/Unroll State of window. (Corrected behaviour after manually resizing a previously rolled window)
                 [*] Adapted <WPXA_RollToggle> to use wp_RollWindowToggle
@@ -1444,14 +1444,14 @@ WPXA_TopToggle(WinTitle) {
         if (wp_IsAlwaysOnTop(WinTitle))
         {
             OutputDebug % _DBG_FName "AlwaysOnTop enabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop enabled - " hwnd, NotifyDuration, NotifyOptions Ico_Minus)
-            MsgBox, NotifyOptions 
+            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop enabled - " hwnd, NotifyDuration, NotifyOptions Ico_Plus)
+            //MsgBox, NotifyOptions 
             wp_SetProp(hwnd,"wpAlwaysOnTop",1)
         }
         else
         {
             OutputDebug % _DBG_FName "AlwaysOnTop disabled for hwnd: " hwnd " - win_class: " WinClass " - win_title: " WinTitle  ; _DBG_
-            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop disabled - " hwnd, NotifyDuration, NotifyOptions Ico_Plus)
+            Notify(A_ScriptName,CurrWinTitle "`nAlwaysOnTop disabled - " hwnd, NotifyDuration, NotifyOptions Ico_Minus)
             wp_RemoveProp(hwnd,"wpAlwaysOnTop")
         }
     }
