@@ -226,7 +226,7 @@ TrayEdit:
 TrayEditConfig:
     RegRead, Editor, HKCR, AutoHotkeyScript\Shell\Edit\Command
     StringReplace, Editor, Editor, "`%1",
-    Trim(Editor)
+    Editor := RegExReplace(Editor, "(^\s*|\s*$)")
     if (Editor = )
         Editor = notepad
     Run, %Editor% "%A_ScriptDir%\WindowPadX.ini"
