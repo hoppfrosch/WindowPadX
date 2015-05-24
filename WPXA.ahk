@@ -724,8 +724,18 @@ Author(s):
 */
 wp_RecenterMouse()
 {
-	; should work with relative/window/client coords
-	WinGetPos, x, y, w, h
+	global RecenterMouse, RecenterOnlyIfOutside
+
+	if (RecenterMouse=0)
+		return
+
+	MouseGetPos, , , mID
+	WinGet, wID, ID
+	if (RecenterOnlyIfOutside and mID=wID)
+		return
+
+	CoordMode, Mouse, Window
+	WinGetPos, , , w, h
 	MouseMove, w / 2, h / 2
 }
 
