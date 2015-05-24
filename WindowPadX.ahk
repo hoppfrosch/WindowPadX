@@ -144,7 +144,7 @@ WindowPadX_LoadSettings(ininame)
     Loop, Parse, opts, `n, `r
     {
         StringSplit v, A_LoopField, =
-        %v1% = %v2%
+        %v1% := v2
     }
     
     ; Hotkeys: Exclude Windows
