@@ -715,6 +715,22 @@ wp_WinTraymin(hWnd = "", nFlags = "")
 
 /*
 ===============================================================================
+Function: wp_RecenterMouse
+	Move cursor to the center of the active window
+
+Author(s):
+	Original - artemisart
+===============================================================================
+*/
+wp_RecenterMouse()
+{
+	; should work with relative/window/client coords
+	WinGetPos, x, y, w, h
+	MouseMove, w / 2, h / 2
+}
+
+/*
+===============================================================================
 Function:   WPXA_ClipCursorToMonitor
     Clips (Restricts) mouse to given monitor
 
@@ -1155,6 +1171,8 @@ WPXA_Move(sideX, sideY, widthFactor, heightFactor, winTitle)
     ; in order to save the position for next time. May also be used by other apps.
     PostMessage, 0x232
     
+	wp_RecenterMouse()
+
     SetWinDelay, WinDelay
     
     wp_RememberPos(hwnd)
@@ -1279,6 +1297,8 @@ WPXA_MoveWindowToMonitor(md, winTitle)
 
     if state = 1
         WinMaximize
+
+	wp_RecenterMouse()
 }
 
 /*
