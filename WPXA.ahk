@@ -987,6 +987,7 @@ WPXA_MaximizeToggle(winTitle)
             WinMaximize
 
         wp_RememberPos(hwnd)
+        wp_RecenterMouse()
     }
 }
 
