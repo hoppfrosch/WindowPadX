@@ -139,6 +139,13 @@ WindowPadX_LoadSettings(ininame)
     ; Misc Options
     IniRead, v, %ininame%, Options, TitleMatchMode, %A_TitleMatchMode%
     SetTitleMatchMode, %v%
+    ; allow generic options
+    IniRead, opts, %ininame%, Options
+    Loop, Parse, opts, `n, `r
+    {
+        StringSplit v, A_LoopField, =
+        %v1% := v2
+    }
     
     ; Hotkeys: Exclude Windows
     v := wp_INI_GetList(ininame, "Exclude Windows", "Window")
