@@ -56,30 +56,28 @@ Ideensammlung:
 
 Version := "1.2.2"
 
+; Custom .ini Path
+Param1 = %1%
+If (InStr(Param1, ".ini")) 
+{
+    WINDOWPADX_INI_PATH := Param1
+    gosub WindowPadXInit
+    return
+}
+
 if 0 > 0
 {
     ; Command-line mode: interpret each arg as a pseudo-command.
-    ;   or pass in custom .ini path
     ; Suspend all hotkeys which may be created by WindowPadXInit.
     Suspend On
-
+    ; Load options and Gather exclusions.
+    gosub WindowPadXInit
     ; Execute command line(s).  Each args should be in one of these formats:
     ;   <command>
     ;   <command>,<args_no_spaces>
     ;   "<command>, <args>"    ; In this case the initial comma is optional.
     Loop %0%
-    {
-        param := %A_Index%
-        if InStr(param, ".ini")
-        {
-            WindowPadX_Init(param)
-        }
-        Else 
-        {
-            gosub WindowPadXInit
-            wp_ExecLine(param)
-        }
-    }
+        wp_ExecLine(%A_Index%)
     ExitApp
 }
 
