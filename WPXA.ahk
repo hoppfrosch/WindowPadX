@@ -1059,7 +1059,7 @@ WPXA_Move(sideX, sideY, widthFactor, heightFactor, winTitle)
     if heightFactor is not number
         heightFactor := sideY ? 0.5 : 1.0
     
-    WinGetPos, x, y, w, h
+	WinGetPosEx(hwnd, x, y, w, h, Offset_Left, Offset_Top, Offset_Right, Offset_Bottom)
     
     if wp_IsWhereWePutIt(hwnd, x, y, w, h)
     {   ; Check if user wants to restore.
@@ -1162,8 +1162,12 @@ WPXA_Move(sideX, sideY, widthFactor, heightFactor, winTitle)
     if (is_resizable := wp_IsResizable())
     {
         ; Move and resize.
-        WinMove,,, newx, newy, neww, newh
-        
+		newx := newx - Offset_Left
+		newy := newy - Offset_Top
+		neww := neww + Offset_Left + Offset_Right
+		newh := newh + Offset_Top + Offset_Bottom
+		WinMove,,, newx, newy, neww, newh
+		
         ; Since some windows might be resizable but have restrictions,
         ; check that the window has sized correctly.  If not, adjust.
         WinGetPos, newx, newy, w, h
