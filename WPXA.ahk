@@ -64,6 +64,9 @@ Author(s):
     20110713 - hoppfrosch - Original
 ===============================================================================
 */
+
+#include %A_ScriptDir%/WinGetPosEx.ahk
+
 WPXA_version()
 {
     Global Version
