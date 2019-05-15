@@ -21,7 +21,7 @@ Features
           - WPXA_FillVirtualScreen: Expand the window to fill the virtual screen (all monitors).
       - General
           - WPXA_MaximizeToggle: Maximize or restore the window.
-          - WPXA_TopToggle: Toogles "AlwaysOnTop" for given window
+          - WPXA_TopToggle: Toggles "AlwaysOnTop" for given window
           - WPXA_RollToggle: Toggles "Roll/Unroll" for given window
           - WPXA_Move: move and resize window based on a "pad" concept.
           - WPXA_TileLast2Windows: Tile active and last window
