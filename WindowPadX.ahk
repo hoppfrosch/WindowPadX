@@ -39,7 +39,7 @@ Version History:
 
 --------------------------------------------------------------------------------------
 Ideensammlung:
-* Transparenz für Fenster
+* Transparenz fï¿½r Fenster
 * Overlay-Icon in Taskbar, um anzuzeigen auf welchem Screen sich das Fenster befindet ... (Funktion aus ITaskBar von maul.esel). Dies sollte bei verlassen des Programmes auch wieder entfernt werden.
   Hinweise:
   * http://www.autohotkey.com/forum/viewtopic.php?t=74314
@@ -111,6 +111,13 @@ WindowPadX_Init(IniPath="")
     }
     WINDOWPADX_INI_PATH := IniPath
     WindowPadX_LoadSettings(IniPath)
+
+    ; Sets Windows Dpi Awareness context for thread so that it uses per-monitor DPI scaling.
+    ; Otherwise there will be issues if using monitors with different scaling for calculating window position, since it will use the scaling of main monitor.
+    ; SetThreadDpiAwarenessContext function description: https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setthreaddpiawarenesscontext
+    ; Argument '-3' sets context to 'DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE':  https://docs.microsoft.com/en-gb/windows/win32/hidpi/dpi-awareness-context
+    ; Without running the line below, it will use -2 DPI_AWARENESS_CONTEXT_SYSTEM_AWARE
+    DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 }
 
 WindowPadX_LoadSettings(ininame)
